@@ -663,10 +663,9 @@ class Graph_Screen(object):
 
 		if not configure.auto[0]:
 
+			# map the data from its 
 			a_slide = translate(a_newest, senseslice[0][4], senseslice[0][5], GRAPH_Y2, GRAPH_Y)
-
 			b_slide = translate(b_newest, senseslice[1][2], senseslice[1][5], GRAPH_Y2, GRAPH_Y)
-
 			c_slide = translate(c_newest, senseslice[2][2], senseslice[2][5], GRAPH_Y2, GRAPH_Y)
 
 			self.slider1.update(sliderb, 283, a_slide)
@@ -682,14 +681,14 @@ class Graph_Screen(object):
 
 		if self.selection == 0:
 
-			#draw the lines
+			# draw the lines
 			pygame.draw.lines(self.surface, c_color, False, c_cords, 2)
-			self.slider3.draw(self.surface)
-
 			pygame.draw.lines(self.surface, b_color, False, b_cords, 2)
-			self.slider2.draw(self.surface)
-
 			pygame.draw.lines(self.surface, a_color, False, a_cords, 2)
+
+			# draw the sliders
+			self.slider3.draw(self.surface)
+			self.slider2.draw(self.surface)
 			self.slider1.draw(self.surface)
 
 

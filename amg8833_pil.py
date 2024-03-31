@@ -80,13 +80,6 @@ from objects import *
 
 import sensors
 
-if configure.amg8833:
-	import adafruit_amg88xx
-	import busio
-	import board
-	i2c = busio.I2C(board.SCL, board.SDA)
-	amg = adafruit_amg88xx.AMG88XX(i2c)
-
 
 
 # create an 8x8 array for testing purposes. Displays random 'sensor data'.
@@ -196,7 +189,8 @@ class ThermalGrid(object):
 		self.average = 0
 		self.ticks = 0
 
-		self.dummy = [[0,0,0,0,0,0,0,0],
+		self.dummy = [
+				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],

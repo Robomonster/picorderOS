@@ -33,8 +33,7 @@ Most installs will require:
 
 For capacitive touch sensing the [Pimoroni cap1xxx library](https://github.com/pimoroni/cap1xxx) can be used for CAP1208 based capacitive touch buttons, and an [adafruit MPR121 Capacitive Sensor](https://github.com/adafruit/Adafruit_CircuitPython_MPR121) for MPR121 ones.
 
-PicorderOS can run using an HDMI or Composite screen in some cases, and can also use TFT LCD displays. Depending on your choice of screen you may need:
-- [Pygame](https://www.pygame.org/wiki/GettingStarted) (For framebuffer screens)
+PicorderOS can run using an HDMI or Composite screen in some cases, and can also use TFT LCD displays. Depending on your choice of screen you may need:- [Pygame](https://www.pygame.org/wiki/GettingStarted) (For framebuffer screens)
 - [Luma.lcd](https://pypi.org/project/luma.lcd/) (For a range of LCD options, thought not all are supported)
 
 
@@ -59,16 +58,17 @@ sudo apt upgrade -y
 
 sudo apt install -y build-essential git python3-virtualenv libsdl2-dev python3-pandas libsdl2-ttf-dev libjpeg-dev libsdl=image-dev libsdl2-ttf-dev libsdl2-mixer-dev libportmidi-dev python3-dev python3-scipy python3-pygame libavcodec-dev libavfilter-dev libavdevice-dev ffmpeg
 
-git clone https://github.com/RPi-Distro/RTIMULib
-cd /RTIMULIB/Linux/python
-python3 setup.py install
-cd ../../..
-
 git clone https://github.com/directive0/picorderOS 
 cd picorderOS
 python3 -m venv .picorder
 source .picorder/bin/activate
-pip3 install -r requirements.txt
+sudo .picorder/bin/pip3 cache purge
+sudo .picorder/bin/pip3 install -r requirements.txt --no-cache-dir
+git clone https://github.com/RPi-Distro/RTIMULib
+cd /RTIMULib/Linux/python
+../../../.picorder/bin/python3 setup.py install                           
+
+
 mkdir data
 
 ```
