@@ -413,7 +413,8 @@ class Inputs(object):
 						self.pressed[button_table[this]] = False
 
 		# adds any new events to the eventlist
-		configure.eventlist[0] = self.pressed
+		if not configure.manual_input:
+			configure.eventlist[0] = self.pressed
 
 
 	def keypress(self):
