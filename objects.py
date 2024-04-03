@@ -504,6 +504,8 @@ class Events(object):
 						payload = 0
 					elif isinstance(self.but_map[index], int):
 						payload = self.but_map[index]
+					
+					key = False
 		else:
 			payload = 0
 		return status,payload
