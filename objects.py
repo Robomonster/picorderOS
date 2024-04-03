@@ -51,18 +51,24 @@ class preferences(object):
 							'GPS':'no'
 							}										
 
-		config['INPUT'] =    {'# Controls which input method is active (Choose only one)':None,
+		config['INPUT'] =    {'# Controls which operator input method is active (Choose only one)':None,
 							'kb':'no',
 							'gpio':'no',
 							'cap_mpr121':'no',
 							'pcf8575':'no',
-							'cap1208':'no',
 							'sensehat_joystick':'no',
+							'cap1208':'no',
 							'# Capacitive touch threshold':None,
 							'capsensitivity':'50',
-							'# Battery monitor':None,
-							'power_monitor':'no',
-							}							# Used only if cap1208 is 'yes'
+							'# Manual control allows the front end to provide its own operator input handling':None,
+							'manual_input':'no',
+							}							
+		
+		config['OUTPUT'] = {'# Display Target (for luma/other driver etc) 1 is st7735 Luma Display.':None,
+					  		'display':'1',
+							'# Indicator LED Animations':None,
+							'LED_timer':'0.2',
+							}
 
 		config['PIN ASSIGNMENTS'] = {'#I2C pins':None,
 							'PIN_SDA':'2',							# I2C pins
@@ -101,13 +107,7 @@ class preferences(object):
 							'PG_SIG':'25',							# PocketGeiger Pins
 							'PG_NS':'18',
 							}
-
-		config['OUTPUT'] = {'# Display Target (for luma/other driver etc) 1 is st7735 Luma Display.':None,
-					  		'display':'1',
-							'# Indicator LED Animations':None,
-							'LED_timer':'0.2',
-							}
-
+		
 		config['GLOBALS'] = {'# Controls whether LEDs are active':None,
 							'leds':'yes',
 							'# Enables the moire pattern on the SenseHat LED matrix - TR-108 only':None,
@@ -122,6 +122,8 @@ class preferences(object):
 							'alarm':'no',
 							'# If sleep is "yes" then lights will respond to Hall Effect sensors':None,
 							'sleep':'no',									# If sleep is True the lights will respond to hall effect sensors
+							'# Retrieve battery level from PSU':None,
+							'power_monitor':'no',
 							'# Respond to door open/close (requires hall effect sensors)':None,
 							'doordetection':'no',
 							'# Autoranging of graphs':None,
@@ -216,6 +218,7 @@ class preferences(object):
 		self.input_cap_mpr121 = self.str2bool(config['INPUT']['cap_mpr121'])
 		self.input_pcf8575 = self.str2bool(config['INPUT']['pcf8575'])
 		self.input_joystick = self.str2bool(config['INPUT']['sensehat_joystick'])
+		self.manual_input = self.str2bool(config['INPUT']['manual_input'])
 
 		# CAP1208 and sensitivity settings
 		self.input_cap1208 = self.str2bool(config['INPUT']['cap1208'])
@@ -310,7 +313,7 @@ class preferences(object):
 		self.alarm = [self.str2bool(config['GLOBALS']['alarm'])]
 
 		# turns battery monitor on and off, used to shut down the battery monitor
-		self.power = self.str2bool(config['INPUT']['power_monitor'])
+		self.power = self.str2bool(config['GLOBALS']['power_monitor'])
 		self.low_power_flag = [False]
 
 		# If sleep is True the lights and input will respond to the door open/close hall effect sensors
