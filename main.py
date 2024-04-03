@@ -128,7 +128,7 @@ def Main():
 	print("Quit Encountered")
 	print("Main Loop Shutting Down")
 
-	# The following calls are for cleanup and just turn "off" any GPIO
+	# The following calls are for cleanup and just turn "off" any elements.
 	if configure.leds[0]:
 		resetleds()
 
@@ -137,7 +137,13 @@ def Main():
 
 	if configure.CLI:
 		cli_reset()
+	
+	if configure.audio[0]:
+		audio_thread.join()
 
+	sensor_thread.join()
+	led_thread.join()
+	input_thread.join()
 	plars.shutdown()
 
 
