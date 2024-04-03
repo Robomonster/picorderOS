@@ -481,6 +481,7 @@ class Events(object):
 			
 			# grab the event list
 			keys = configure.eventlist[0]
+			configure.eventlist[0] = []
 
 			# cycle through each of inputs in the list
 			for index, key in enumerate(keys):
