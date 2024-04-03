@@ -115,15 +115,15 @@ class preferences(object):
 							'# Enables video playback':None,
 							'video':'no',
 							'# Enables audio playback (videos will not play without this)':None,
-							'audio':'yes',									# Enables audio playback
+							'audio':'no',									# Enables audio playback
 							'# Enables warble playback':None,
-							'warble':'yes',									# Enables audio playback
+							'warble':'no',									# Enables audio playback
 							'# Enable alarm when thermal cam exceeds min/max':None,
 							'alarm':'no',
 							'# If sleep is "yes" then lights will respond to Hall Effect sensors':None,
-							'sleep':'yes',									# If sleep is True the lights will respond to hall effect sensors
+							'sleep':'no',									# If sleep is True the lights will respond to hall effect sensors
 							'# Respond to door open/close (requires hall effect sensors)':None,
-							'doordetection':'yes',
+							'doordetection':'no',
 							'# Autoranging of graphs':None,
 							'autoranging':'yes',							# Auto ranging of graphs
 							'# Controls graph width for TR108':None,

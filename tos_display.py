@@ -12,6 +12,7 @@ import pygame, time, os
 
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
+
 from pathlib import Path
 from plars import *
 from objects import *
@@ -343,7 +344,6 @@ def startUp(surface):
 
 	#Instantiates the components of the scene
 	insignia = Image()
-	mainTitle = Label()
 	secTitle = Label()
 	secblurb = Label()
 
@@ -362,10 +362,6 @@ def startUp(surface):
 
 	#checks time
 	timenow = time.time()
-
-	#compares time just taken with time of start to animate the apperance of text
-	#if (timenow - timeSinceStart) > .5:
-	 #mainTitle.draw(surface)
 
 	#if (timenow - timeSinceStart) > 1:
 	secTitle.draw(surface)

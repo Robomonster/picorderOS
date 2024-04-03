@@ -5,7 +5,6 @@ import psutil
 import numpy
 import socket
 
-from sshkeyboard import listen_keyboard
 
 
 from operator import itemgetter
@@ -66,19 +65,6 @@ map = """             @   .-
             @                                @ 
                                                
 -----------------------------------------------"""
-
-class keyboard_events(object):
-	
-	def __init__(self):
-		self.keymap = {'left':0,'up':1,'right':2}
-		listen_keyboard(on_press=self.check)
-
-	def check(self,key):
-
-		for keys in self.keymap:
-			if key == keys:
-				configure.eventlist[self.keymap[keys]] = True
-				configure.eventready[0] = True
 
 
 class Start_Frame(object):
@@ -312,7 +298,7 @@ class graph(object):
 						for i in range(abs(difference)):
 							stdscr.addch(self.buffer[column]-i,position,block,curses.A_REVERSE)
 
-			if column < len(self.buffer):
+			if column <= len(self.buffer):
 
 				# draw this point
 				stdscr.addch(self.buffer[column],position,block,curses.A_REVERSE)
