@@ -112,7 +112,7 @@ def Main():
 				print("Shut Down!")
 				configure.status[0] = "quit"
 
-				if configure.leds:
+				if configure.leds[0]:
 					resetleds()
 
 				if configure.input_gpio:
@@ -129,7 +129,7 @@ def Main():
 	print("Main Loop Shutting Down")
 
 	# The following calls are for cleanup and just turn "off" any GPIO
-	if configure.leds:
+	if configure.leds[0]:
 		resetleds()
 
 	if configure.input_gpio:
