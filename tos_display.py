@@ -91,7 +91,7 @@ last_status = "startup"
 def butswitch():
 	for event in pygame.event.get():
 	#key = pygame.key.get_pressed() 
-		if event.type == pygame.QUIT:
+		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_RIGHT:
 				print("key right")
 				configure.eventlist[0][2] = True
