@@ -976,4 +976,5 @@ class Screen(object):
 
 	def run(self):
 		butswitch()
-		configure.status[0] = self.carousel[configure.status[0]]()
+		if configure.status[0] != 'quit':
+			configure.status[0] = self.carousel[configure.status[0]]()
