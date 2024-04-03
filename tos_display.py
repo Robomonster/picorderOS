@@ -96,17 +96,20 @@ def butswitch():
 			if event.key == pygame.K_RIGHT:
 				configure.eventlist[0][2] = True
 				configure.eventready[0] = True
-		
+
+			if event.key == pygame.K_DOWN:
+				configure.eventlist[0][1] = True
+				configure.eventready[0] = True
+
 			if event.key == pygame.K_LEFT:
 				configure.eventlist[0][0] = True
 				configure.eventready[0] = True
 
-			if event.key == pygame.K_UP:
-				configure.eventlist[0][1] = True
-				configure.eventready[0] = True
-
 			if event.key == pygame.K_a:
 				configure.auto[0] = not configure.auto[0]
+
+			if event.key == pygame.K_q:
+				configure.status[0] = "quit"
 
 # the following class defines simple text labels
 
