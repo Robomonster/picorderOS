@@ -481,7 +481,6 @@ class Events(object):
 			
 			# grab the event list
 			keys = configure.eventlist[0]
-			configure.eventlist[0] = []
 
 			# cycle through each of inputs in the list
 			for index, key in enumerate(keys):
@@ -506,7 +505,6 @@ class Events(object):
 					elif isinstance(self.but_map[index], int):
 						payload = self.but_map[index]
 					
-					key = False
 		else:
 			payload = 0
 		return status,payload

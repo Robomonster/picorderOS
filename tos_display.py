@@ -89,6 +89,7 @@ last_status = "startup"
 # The following function defines button behaviours and allows the program to
 # query the button events and act accordingly. This function is deprecated.
 def butswitch():
+	configure.eventlist[0] = [False, False, False]
 	for event in pygame.event.get():
 	#key = pygame.key.get_pressed() 
 		if event.type == pygame.KEYDOWN:
