@@ -56,7 +56,7 @@ A fresh Raspberry Pi OS image can usually be initialized to work with picorderOS
 sudo apt update
 sudo apt upgrade -y
 
-sudo apt install -y build-essential git python3-virtualenv libsdl2-dev python3-pandas libsdl2-ttf-dev libjpeg-dev libsdl=image-dev libsdl2-ttf-dev libsdl2-mixer-dev libportmidi-dev python3-dev python3-scipy python3-pygame libavcodec-dev libavfilter-dev libavdevice-dev ffmpeg
+sudo apt install -y build-essential git python3-virtualenv libsdl2-dev python3-pandas libsdl2-ttf-dev libjpeg-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libportmidi-dev python3-dev python3-scipy python3-pygame libavcodec-dev libavfilter-dev libavdevice-dev ffmpeg
 
 git clone https://github.com/directive0/picorderOS 
 cd picorderOS

@@ -10,9 +10,6 @@ from pickle import FALSE
 import pygame, time, os
 
 
-
-os.environ["SDL_VIDEO_CENTERED"] = "1"
-
 from pathlib import Path
 from plars import *
 from objects import *
@@ -34,9 +31,12 @@ GRAPH_Y = configure.mode_a_y_offset
 GRAPH_X2 = GRAPH_X + GRAPH_WIDTH
 GRAPH_Y2 = GRAPH_Y + GRAPH_HEIGHT
 
+
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 os.environ['PYGAME_BLEND_ALPHA_SDL2'] = '1'
 # The following commands initiate a pygame environment.
 pygame.init()
+pygame.mixer.init()
 pygame.font.init()
 pygame.display.set_caption('PicorderOS')
 
@@ -94,13 +94,16 @@ def butswitch():
 	message = []
 
 	if key[pygame.K_RIGHT]:
-		message += ["right"]
-
+		configure.eventlist[0][2] = True
+		configure.eventready[0] = True
+	
 	if key[pygame.K_LEFT]:
-		message += ["left"]
+		configure.eventlist[0][0] = True
+		configure.eventready[0] = True
 
 	if key[pygame.K_UP]:
-		message += ["up"]
+		configure.eventlist[0][1] = True
+		configure.eventready[0] = True
 
 	if key[pygame.K_a]:
 		configure.auto[0] = not configure.auto[0]
@@ -971,4 +974,5 @@ class Screen(object):
 		return status
 
 	def run(self):
+		butswitch()
 		configure.status[0] = self.carousel[configure.status[0]]()
