@@ -978,3 +978,5 @@ class Screen(object):
 		butswitch()
 		if configure.status[0] != 'quit':
 			configure.status[0] = self.carousel[configure.status[0]]()
+		else:
+			pygame.quit()

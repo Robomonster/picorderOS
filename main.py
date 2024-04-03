@@ -8,6 +8,7 @@ print("PicorderOS")
 print("Loading Components")
 
 import os
+import sys
 from threading import Thread
 
 
@@ -145,6 +146,7 @@ def Main():
 	led_thread.join()
 	input_thread.join()
 	plars.shutdown()
+	sys.exit()
 
 
 # the following call starts our program and begins the loop.
