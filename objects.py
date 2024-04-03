@@ -109,7 +109,7 @@ class preferences(object):
 							}
 		
 		config['GLOBALS'] = {'# Controls whether LEDs are active':None,
-							'leds':'yes',
+							'leds':'no',
 							'# Enables the moire pattern on the SenseHat LED matrix - TR-108 only':None,
 							'moire':'no',
 							'# Enables video playback':None,
