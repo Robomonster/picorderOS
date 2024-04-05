@@ -120,7 +120,7 @@ class Sensor(object):
 
 
 		# data fragments (objects that contain the most recent sensor value,
-		# plus metadata for context) are objects called Fragment().
+		# plus metadata for context) are called Fragment().
 
 		if configure.gps:
 			self.gps_speed = Fragment(0.0,0.0,"GPS Speed","kn", "gps")
@@ -301,13 +301,13 @@ class Sensor(object):
 			self.thermal_frame = amg.pixels
 
 
-			data = numpy.array(self.thermal_frame)
+			data = numpy.array(self.thermal_frame, position)
 
 			high = numpy.max(data)
 			low = numpy.min(data)
 
-			self.amg_high.set(high,timestamp)
-			self.amg_low.set(low,timestamp)
+			self.amg_high.set(high,timestamp, position)
+			self.amg_low.set(low,timestamp, position)
 
 			sensorlist.extend((self.amg_high, self.amg_low))
 
