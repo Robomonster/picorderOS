@@ -298,7 +298,7 @@ class graph(object):
 						for i in range(abs(difference)):
 							stdscr.addch(self.buffer[column]-i,position,block,curses.A_REVERSE)
 
-			if column = len(self.buffer):
+			if column == len(self.buffer):
 				# draw this point
 				stdscr.addch(self.buffer[column],position,block,curses.A_REVERSE)
 			else:
