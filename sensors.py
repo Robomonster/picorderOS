@@ -301,7 +301,7 @@ class Sensor(object):
 			self.thermal_frame = amg.pixels
 
 
-			data = numpy.array(self.thermal_frame, position)
+			data = numpy.array(self.thermal_frame)
 
 			high = numpy.max(data)
 			low = numpy.min(data)
