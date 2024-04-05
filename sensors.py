@@ -54,8 +54,7 @@ if configure.pocket_geiger:
 if configure.amg8833:
 	import adafruit_amg88xx
 	import busio
-	import board
-	i2c = busio.I2C(board.SCL, board.SDA)
+	i2c = busio.I2C(configure.PIN_SCL, configure.PIN_SDA)
 	amg = adafruit_amg88xx.AMG88XX(i2c)
 
 if configure.EM:
