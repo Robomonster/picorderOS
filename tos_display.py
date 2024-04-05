@@ -221,7 +221,7 @@ class SelectableLabel(Label):
 			# if the integer is larger than the pool of available sensors.
 			# this assumes this selectable label is being used to control
 			# sensor selection.
-			if self.special == 1 and self.oper[0] > configure.max_sensors[0]-1:
+			if self.special == 1 and self.oper[0] > (len(configure.sensor_info)-1):
 				self.oper[0] = 0
 
 			if self.special == 2 and self.oper[0] > (len(themes) - 1):
