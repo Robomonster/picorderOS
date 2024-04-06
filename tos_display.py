@@ -955,7 +955,7 @@ class Thermal_Screen(object):
 		self.intervallabel = Label()
 		self.intervallabelshadow = Label()
 
-		self.t_grid = ThermalGrid(GRAPH_X,GRAPH_Y,GRAPH_X2,GRAPH_Y2)
+		self.t_grid = ThermalGrid(160,111,287,184)
 		self.t_grid_full = ThermalGrid(0,0,320,240)
 
 
