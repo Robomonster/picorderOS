@@ -978,6 +978,13 @@ class Thermal_Screen(object):
 			if self.selection > 1:
 				self.selection = 0
 
+
+		#Sets a black screen ready for our UI elements
+		self.surface.fill(black)
+
+		#draws Background gridplane
+		self.graphback.draw(self.surface)
+
 		if self.selection == 0:
 			self.average,self.high,self.low = self.t_grid.update()
 			a_color = themes[configure.theme[0]][0]
@@ -999,7 +1006,10 @@ class Thermal_Screen(object):
 			self.average,self.high,self.low = self.t_grid_full.update()
 
 
-		
+		if self.selection == 0:
+			self.t_grid.push(self.surface)
+		elif self.selection == 1:
+			self.t_grid_full.push(self.surface)
 		#draws UI to frame buffer
 		pygame.display.update()
 
