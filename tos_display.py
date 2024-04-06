@@ -981,14 +981,14 @@ class Thermal_Screen(object):
 		if self.selection == 0:
 			self.average,self.high,self.low = self.t_grid.update()
 			a_color = themes[configure.theme[0]][0]
-			self.high_label.update(self.high + self.symbol, 27,marginleft,205,titleFont,a_color)
+			self.high_label.update(str(self.high) + self.symbol, 27,marginleft,205,titleFont,a_color)
 
 			b_color = themes[configure.theme[0]][1]
-			self.xbar_label.update(self.average + self.symbol, 27,114,205,titleFont,b_color)
+			self.xbar_label.update(str(self.average) + self.symbol, 27,114,205,titleFont,b_color)
 			self.xbar_label.center(resolution[0],27,0,205)
 
 			c_color = themes[configure.theme[0]][2]
-			self.low_label.update(c_content + self.symbol,27,marginright,205,titleFont,c_color)
+			self.low_label.update(str(self.low) + self.symbol,27,marginright,205,titleFont,c_color)
 			self.low_label.r_align(320 - marginright ,205)
 			
 			self.high_label.draw(self.surface)
