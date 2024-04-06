@@ -958,14 +958,7 @@ class Thermal_Screen(object):
 		self.t_grid = ThermalGrid(17,19,287,184)
 		self.t_grid_full = ThermalGrid(0,0,320,240)
 
-
-
-
-
 		self.symbol = "°c"
-
-
-
 
 
 	def frame(self):

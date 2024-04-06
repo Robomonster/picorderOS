@@ -65,8 +65,8 @@ colors = list(cool.range_to(hot, COLORDEPTH))
 # create the array of colors
 colors = [(int(c.red * 255), int(c.green * 255), int(c.blue * 255)) for c in colors]
 
-displayPixelWidth = width / 30
-displayPixelHeight = height / 30
+displayPixelWidth = width // 30
+displayPixelHeight = height // 30
 
 
 colrange = list(cool.range_to(hot, 256))
