@@ -14,6 +14,8 @@ from pathlib import Path
 from plars import *
 from objects import *
 from input import *
+from amg8833_pygame import *
+
 
 if configure.video:
 	from pyvidplayer import Video
@@ -738,74 +740,76 @@ class Graph_Screen(object):
 
 #experimental video screen written by scifi.radio from the mycorder discord
 class EdithKeeler_Screen(object):
-    def __init__(self,surface):
-        self.status = "slider"
-        self.surface = surface
-        self.videobg = Image()
-        self.videobg.update(videobg, 0,0)
-        self.running = False
-        self.paused = False
-        self.clock = pygame.time.Clock()
+	def __init__(self,surface):
+		self.status = "video"
+		self.surface = surface
+		self.videobg = Image()
+		self.videobg.update(videobg, 0,0)
+		self.running = False
+		self.paused = False
+		self.clock = pygame.time.Clock()
+		self.events = Events(["graph","slider","setting"],"video")
 
-    def frame(self):
-        self.status = "slider"
-        if not self.running:
-            self.running = True
-            self.clip = Video('assets/ekmd.mov')
-            self.clip.set_size(resolution)
-            pygame.mixer.quit()
 
-        self.clock.tick(60)
+	def frame(self):
+		self.status = "slider"
+		if not self.running:
+			self.running = True
+			self.clip = Video('assets/ekmd.mov')
+			self.clip.set_size(resolution)
+			pygame.mixer.quit()
 
-        if configure.eventready[0]:
+		self.clock.tick(60)
 
-        # The following code handles inputs and button presses.
-            keys = configure.eventlist[0]
+		if configure.eventready[0]:
 
-            # if a key is registering as pressed.
-            if keys[0]:
-                print("Button 1")
-                self.status = "slider"
-                configure.eventready[0] = False
-                self.running = False
-                self.clip.close()
-                return self.status
+		# The following code handles inputs and button presses.
+			keys = configure.eventlist[0]
 
-            if keys[1]:
-                self.status =  "video"
-                self.clip.toggle_pause()
-                if self.paused:
-                    self.paused = False
-                    print("Resume")
-                else:
-                    self.paused = True
-                    print("Paused")
+			# if a key is registering as pressed.
+			if keys[0]:
+				print("Button 1")
+				self.status = "slider"
+				configure.eventready[0] = False
+				self.running = False
+				self.clip.close()
+				return self.status
+
+			if keys[1]:
+				self.status =  "video"
+				self.clip.toggle_pause()
+				if self.paused:
+					self.paused = False
+					print("Resume")
+				else:
+					self.paused = True
+					print("Paused")
 				# We would use this to set mode_d instead of
 				# toggling a pause were we to get a mode_d
-                configure.eventready[0] = False
-                return self.status
+				configure.eventready[0] = False
+				return self.status
 
 
-            if keys[2]:
-                configure.last_status[0] = "video"
-                print("Button 3")
-                self.status = "settings"
-                self.running = False
-                configure.eventready[0] = False
+			if keys[2]:
+				configure.last_status[0] = "video"
+				print("Button 3")
+				self.status = "settings"
+				self.running = False
+				configure.eventready[0] = False
 
-                return self.status
+				return self.status
 
-            configure.eventready[0] = False
+			configure.eventready[0] = False
 
-        #draws Background gridplane
-        self.videobg.draw(self.surface)
-        self.clip.draw(self.surface,(0,0), force_draw=FALSE)
-        #draws UI to frame buffer
-        pygame.display.update()
-        if not self.clip.active:
-            self.clip.restart()
+		#draws Background gridplane
+		self.videobg.draw(self.surface)
+		self.clip.draw(self.surface,(0,0), force_draw=FALSE)
+		#draws UI to frame buffer
+		pygame.display.update()
+		if not self.clip.active:
+			self.clip.restart()
 
-        return self.status
+		return self.status
 
 
 class Slider_Screen(object):
@@ -835,7 +839,7 @@ class Slider_Screen(object):
 		self.status = "graph"
 		self.input = input
 
-		self.events = Events(["graph","slider","settings"],"slider")
+		self.events = Events(["graph","thermal","settings"],"slider")
 
 	def frame(self):
 		
@@ -905,6 +909,105 @@ class Slider_Screen(object):
 		# draws UI to frame buffer
 		return status
 
+# The thermal screen is fed the surface and taking the thermal array  
+# draws an interpolated rendering of the data for display
+# - shows the thermal output
+# - displays the high low and xbar of the field
+# - switches the display to full screen and back.
+class Thermal_Screen(object):
+
+
+	def __init__(self,surface):
+		
+		self.events = Events([1,"graph","settings"],"thermal")
+
+		# for long presses
+		self.input_timer = timer()
+		self.presstime = 5
+		self.longpressed = [False, False, False]
+
+		# State variable
+		self.selection = 0
+
+		# An fps controller
+		self.drawinterval = timer()
+
+		# Sample rate controller
+		self.senseinterval = 0
+
+		# Pygame drawing surface.
+		self.surface = surface
+
+		# Draws Background gridplane
+		self.graphback = Image()
+		self.graphback.update(backgraph, 0, 0)
+
+
+		# Instantiates 3 labels for our readout
+		self.high_label = Label()
+		self.low_label = Label()
+		self.xbar_label = Label()
+
+		self.high = 0
+		self.low = 0
+		self.average = 0
+
+		self.intervallabel = Label()
+		self.intervallabelshadow = Label()
+
+		self.t_grid = ThermalGrid(GRAPH_X,GRAPH_Y,GRAPH_X2,GRAPH_Y2)
+		self.t_grid_full = ThermalGrid(0,0,320,240)
+
+
+
+
+
+		self.symbol = "°c"
+
+
+
+
+
+	def frame(self):
+
+		# Uses the event class to set the status and check for state changes
+		status,payload  = self.events.check()
+
+		if payload == 1:
+			self.selection += 1
+			if self.selection > 1:
+				self.selection = 0
+
+		if self.selection == 0:
+			self.average,self.high,self.low = self.t_grid.update()
+			a_color = themes[configure.theme[0]][0]
+			self.high_label.update(self.high + self.symbol, 27,marginleft,205,titleFont,a_color)
+
+			b_color = themes[configure.theme[0]][1]
+			self.xbar_label.update(self.average + self.symbol, 27,114,205,titleFont,b_color)
+			self.xbar_label.center(resolution[0],27,0,205)
+
+			c_color = themes[configure.theme[0]][2]
+			self.low_label.update(c_content + self.symbol,27,marginright,205,titleFont,c_color)
+			self.low_label.r_align(320 - marginright ,205)
+			
+			self.high_label.draw(self.surface)
+			self.xbar_label.draw(self.surface)
+			self.low_label.draw(self.surface)
+
+		if self.selection == 1:
+			self.average,self.high,self.low = self.t_grid_full.update()
+
+
+		
+		#draws UI to frame buffer
+		pygame.display.update()
+
+
+		return status
+
+	def visible(self,item,option):
+		self.visibility[item] = option
 # A basic screen object. Is given parameters and displays them on a number of preset panels
 class Screen(object):
 
@@ -937,6 +1040,7 @@ class Screen(object):
 		self.edithkeelerscreen = EdithKeeler_Screen(self.surface)
 		self.slidescreen = Slider_Screen(self.surface)
 		self.settings_screen = Settings_Panel(self.surface)
+		self.thermalscreen = Thermal_Screen(self.surface)
 
 
 		# carousel dict to hold the keys and defs for each state
@@ -944,6 +1048,7 @@ class Screen(object):
 				   "graph":self.graph_screen,
 				   "video":self.video_screen,
 				   "slider":self.slider_screen,
+				   "thermal":self.thermal_screen,
 				   "settings":self.settings}
 
 
@@ -964,6 +1069,10 @@ class Screen(object):
 
 	def graph_screen(self):
 		status = self.graphscreen.frame()
+		return status
+	
+	def thermal_screen(self):
+		status = self.thermalscreen.frame()
 		return status
 
 	def video_screen(self):
