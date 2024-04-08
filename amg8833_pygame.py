@@ -65,8 +65,8 @@ colors = list(cool.range_to(hot, COLORDEPTH))
 # create the array of colors
 colors = [(int(c.red * 255), int(c.green * 255), int(c.blue * 255)) for c in colors]
 
-displayPixelWidth = width // 30
-displayPixelHeight = height // 30
+displayPixelWidth = width / 30
+displayPixelHeight = height / 30
 
 
 colrange = list(cool.range_to(hot, 256))
@@ -258,7 +258,8 @@ class ThermalGrid(object):
 			for jx, pixel in enumerate(row):
 				x = self.x + (displayPixelHeight * ix)
 				y = self.y + (displayPixelWidth * jx)
-				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, displayPixelWidth, displayPixelHeight))
+
+				pygame.draw.rect(surface, colors[constrain(int(pixel), (x, y, displayPixelWidth, displayPixelHeight))
 
 	def update(self):
 
@@ -274,7 +275,7 @@ class ThermalGrid(object):
 			self.data = np.transpose(self.data).tolist()
 
 		if fliplr:
-			self.data = np.fliplr(self.data).to	list()
+			self.data = np.fliplr(self.data).tolist()
 
 		if flipud:
 			self.data = np.flipud(self.data).tolist()
