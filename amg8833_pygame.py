@@ -184,8 +184,8 @@ class ThermalGrid(object):
 		self.average = 0
 		self.ticks = 0
 
-		self.displayPixelWidth = self.w / 30
-		self.displayPixelHeight = self.h / 30
+		self.displayPixelWidth = self.w // 30
+		self.displayPixelHeight = self.h // 30
 
 		self.dummy = [
 				[0,0,0,0,0,0,0,0],
@@ -250,8 +250,8 @@ class ThermalGrid(object):
 		# draw everything
 		for ix, row in enumerate(bicubic):
 			for jx, pixel in enumerate(row):
-				x = self.x + (self.displayPixelHeight * ix)
-				y = self.y + (self.displayPixelWidth * jx)
+				x = self.x + (self.displayPixelWidth * ix)
+				y = self.y + (self.displayPixelHeight * jx)
 
 				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, self.displayPixelWidth, self.displayPixelHeight))
 
