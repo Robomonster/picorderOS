@@ -739,7 +739,7 @@ class Graph_Screen(object):
 		self.visibility[item] = option
 
 #experimental video screen written by scifi.radio from the mycorder discord
-class EdithKeeler_Screen(object):
+class Video_Playback(object):
 	def __init__(self,surface):
 		self.status = "video"
 		self.surface = surface
@@ -748,58 +748,45 @@ class EdithKeeler_Screen(object):
 		self.running = False
 		self.paused = False
 		self.clock = pygame.time.Clock()
-		self.events = Events(["graph","slider","setting"],"video")
+		self.events = Events([1,2,3],"video")
 
 
 	def frame(self):
-		self.status = "slider"
-		if not self.running:
-			self.running = True
-			self.clip = Video('assets/ekmd.mov')
-			self.clip.set_size(resolution)
-			pygame.mixer.quit()
+
+		self.status = "video"
+		# Uses the event class to set the status and check for state changes
+		status,payload  = self.events.check()
+
+		if payload == 1:
+			self.status =  "video"
+			self.clip.toggle_pause()
+			if self.paused:
+				self.paused = False
+				print("Resume")
+			else:
+				self.paused = True
+				print("Paused")
+			# We would use this to set mode_d instead of
+			# toggling a pause were we to get a mode_d
+			configure.eventready[0] = False
+			return self.status
+
+		if payload == 2:
+			self.status = "graph"
+			configure.eventready[0] = False
+			self.running = False
+			self.clip.close()
+			return self.status
+
+		if payload == 3:
+			configure.last_status[0] = "video"
+			print("Button 3")
+			self.status = "settings"
+			self.running = False
+			configure.eventready[0] = False
 
 		self.clock.tick(60)
 
-		if configure.eventready[0]:
-
-		# The following code handles inputs and button presses.
-			keys = configure.eventlist[0]
-
-			# if a key is registering as pressed.
-			if keys[0]:
-				print("Button 1")
-				self.status = "slider"
-				configure.eventready[0] = False
-				self.running = False
-				self.clip.close()
-				return self.status
-
-			if keys[1]:
-				self.status =  "video"
-				self.clip.toggle_pause()
-				if self.paused:
-					self.paused = False
-					print("Resume")
-				else:
-					self.paused = True
-					print("Paused")
-				# We would use this to set mode_d instead of
-				# toggling a pause were we to get a mode_d
-				configure.eventready[0] = False
-				return self.status
-
-
-			if keys[2]:
-				configure.last_status[0] = "video"
-				print("Button 3")
-				self.status = "settings"
-				self.running = False
-				configure.eventready[0] = False
-
-				return self.status
-
-			configure.eventready[0] = False
 
 		#draws Background gridplane
 		self.videobg.draw(self.surface)
@@ -919,7 +906,7 @@ class Thermal_Screen(object):
 
 	def __init__(self,surface):
 		
-		self.events = Events([1,"graph","settings"],"thermal")
+		self.events = Events([1,"video","settings"],"thermal")
 
 		# for long presses
 		self.input_timer = timer()
@@ -1040,7 +1027,7 @@ class Screen(object):
 
 		self.timed = time.time()
 		self.graphscreen = Graph_Screen(self.surface)
-		self.edithkeelerscreen = EdithKeeler_Screen(self.surface)
+		self.videoplayback = Video_Playback(self.surface)
 		self.slidescreen = Slider_Screen(self.surface)
 		self.settings_screen = Settings_Panel(self.surface)
 		self.thermalscreen = Thermal_Screen(self.surface)
@@ -1079,7 +1066,7 @@ class Screen(object):
 		return status
 
 	def video_screen(self):
-		status = self.edithkeelerscreen.frame()
+		status = self.videoplayback.frame()
 		return status
 
 	def settings(self):
