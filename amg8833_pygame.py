@@ -232,8 +232,8 @@ class ThermalGrid(object):
 
 		height = self.w
 		width = self.h
-		displayPixelWidth = width / 30
-		displayPixelHeight = height / 30
+		displayPixelWidth = self.w / 30
+		displayPixelHeight = self.h / 30
 
 		if configure.auto[0]:
 			# low range of the sensor (this will be blue on the screen)
@@ -274,7 +274,7 @@ class ThermalGrid(object):
 			self.data = np.transpose(self.data).tolist()
 
 		if fliplr:
-			self.data = np.fliplr(self.data).tolist()
+			self.data = np.fliplr(self.data).to	list()
 
 		if flipud:
 			self.data = np.flipud(self.data).tolist()
