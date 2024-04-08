@@ -65,10 +65,6 @@ colors = list(cool.range_to(hot, COLORDEPTH))
 # create the array of colors
 colors = [(int(c.red * 255), int(c.green * 255), int(c.blue * 255)) for c in colors]
 
-displayPixelWidth = width / 30
-displayPixelHeight = height / 30
-
-
 colrange = list(cool.range_to(hot, 256))
 
 rotate = False
@@ -188,6 +184,9 @@ class ThermalGrid(object):
 		self.average = 0
 		self.ticks = 0
 
+		self.displayPixelWidth = self.w / 30
+		self.displayPixelHeight = self.h / 30
+
 		self.dummy = [
 				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],
@@ -230,9 +229,6 @@ class ThermalGrid(object):
 
 	def interpolate(self, surface):
 
-		displayPixelWidth = self.w / 30
-		displayPixelHeight = self.h / 30
-
 		if configure.auto[0]:
 			# low range of the sensor (this will be blue on the screen)
 			mintemp = self.low
@@ -254,10 +250,10 @@ class ThermalGrid(object):
 		# draw everything
 		for ix, row in enumerate(bicubic):
 			for jx, pixel in enumerate(row):
-				x = self.x + (displayPixelHeight * ix)
-				y = self.y + (displayPixelWidth * jx)
+				x = self.x + (self.displayPixelHeight * ix)
+				y = self.y + (self.displayPixelWidth * jx)
 
-				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, displayPixelWidth, displayPixelHeight))
+				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, self.displayPixelWidth, self.displayPixelHeight))
 
 	def update(self):
 
