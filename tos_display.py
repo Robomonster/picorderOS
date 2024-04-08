@@ -752,7 +752,14 @@ class Video_Playback(object):
 
 
 	def frame(self):
+		if not self.running:
+			self.running = True	
+			self.clip = Video('assets/ekmd.mov')
+			self.clip.set_size(resolution)
+			pygame.mixer.quit()
 
+		self.clock.tick(60)
+		
 		self.status = "video"
 		# Uses the event class to set the status and check for state changes
 		status,payload  = self.events.check()
