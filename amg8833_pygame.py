@@ -230,8 +230,6 @@ class ThermalGrid(object):
 
 	def interpolate(self, surface):
 
-		height = self.w
-		width = self.h
 		displayPixelWidth = self.w / 30
 		displayPixelHeight = self.h / 30
 
@@ -259,7 +257,7 @@ class ThermalGrid(object):
 				x = self.x + (displayPixelHeight * ix)
 				y = self.y + (displayPixelWidth * jx)
 
-				pygame.draw.rect(surface, colors[constrain(int(pixel), (x, y, displayPixelWidth, displayPixelHeight))
+				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, displayPixelWidth, displayPixelHeight))
 
 	def update(self):
 
