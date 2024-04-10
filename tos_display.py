@@ -178,7 +178,7 @@ class Label_List(object):
 		#initial coordinates
 		self.x = x
 		self.y = y
-		print("labellist coords", self.x, self.y)
+		
 
 		# used in the loop to offset y location of items.
 		self.jump = 0
@@ -206,6 +206,8 @@ class Label_List(object):
 		for index, item in enumerate(items):
 
 			string = str(item)
+
+			print("labellist coords", self.x, self.y)
 
 			# create a text item with the string.
 			thislabel = Label(content = string, color = self.colour, x = self.x, y = self.y + self.jump, fontSize = self.size)
