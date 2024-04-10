@@ -1108,7 +1108,7 @@ class Wifi_Screen(object):
 					pygame.draw.ellipse(self.surface,blue,[x1,y1,x2,y2])
 
 		#draw round rect background
-		pygame.draw.rectangle(self.surface,white,[vizX1,vizY1,vizX2,vizY2])
+		pygame.draw.rect(self.surface,white,[vizX1,vizY1,vizX2,vizY2])
 
 
 		label_list = []
