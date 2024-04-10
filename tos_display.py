@@ -115,17 +115,17 @@ def butswitch():
 				configure.status[0] = "quit"
 
 # the following class defines simple text labels
-
 class Label(object):
+
 	def __init__(self,content = "hello", fontSize = 30, x = 0, y = 0, color = white, font = titleFont):
-		self.x = x
-		self.y = y
 		self.color = color
 		self.fontSize = fontSize
 		self.myfont = pygame.font.Font(font, self.fontSize)
 		self.content = content
 		self.size = self.myfont.size(self.content)
 		self.scaler = 3
+		self.x = x
+		self.y = y
 
 	# Sets the paramaters of the text, used when ready to push the text.
 	def update(self, content, fontSize, newx, newy, fontType, color):
@@ -136,6 +136,7 @@ class Label(object):
 		self.myfont = pygame.font.Font(fontType, self.fontSize)
 		self.color = color
 
+	# centers the text within an envelope
 	def r_align(self,x,y):
 		size = self.getrect()
 		textposx = x-size[0]
@@ -178,7 +179,6 @@ class Label_List(object):
 		#initial coordinates
 		self.x = x
 		self.y = y
-		
 
 		# used in the loop to offset y location of items.
 		self.jump = 0
@@ -210,7 +210,8 @@ class Label_List(object):
 			print("labellist coords", self.x, self.y)
 
 			# create a text item with the string.
-			thislabel = Label(content = string, color = self.colour, x = self.x, y = self.y + self.jump, fontSize = self.size)
+			thislabel = Label()
+			thislabel.update(string, self.size, self.x, self.y + self.jump, titleFont, self.colour)
 
 			# blit the text		
 			thislabel.draw(surface)
@@ -1181,8 +1182,8 @@ class Wifi_Screen(object):
 				label = strength + " dB • " + name
 
 				list_for_labels.append(label)
-			self.list.x = 14
-			self.list.y = 17
+
+
 			self.list.draw(list_for_labels,self.surface)
 		else:
 			self.list.draw(["No SSIDS Detected OR PLARS Error!"],self.surface)
