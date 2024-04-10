@@ -1091,15 +1091,15 @@ class Wifi_Screen(object):
 
 
 					# draw the strongest signals name
-					self.signal_name_sm.push(20,80,draw,string = trunc_name)
+					#self.signal_name_sm.push(20,80,draw,string = trunc_name)
 
 					# put strength at lower left
 					strength_string = str(item[3]) + " DB"
 					#self.signal_strength_sm.push(19,114,draw,string = strength_string)
 
 					# put frequency at lower right
-					self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
-					self.signal_frequency_sm.r_align(155,82,draw)
+					#self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
+					#self.signal_frequency_sm.r_align(155,82,draw)
 
 
 				# otherwise just draw the line and dot in the usual color
