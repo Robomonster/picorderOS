@@ -210,7 +210,7 @@ class Label_List(object):
 			thislabel = Label(content = string, color = self.colour, x = self.x, y = self.y + self.jump, fontSize = self.size)
 
 			# blit the text		
-			thislabel.draw()
+			thislabel.draw(surface)
 
 			# increase the y position by the height of the last item, plus spacer
 			self.jump += (thislabel.get_size()[1] + self.spacer)
