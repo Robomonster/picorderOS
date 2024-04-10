@@ -1019,6 +1019,9 @@ class Wifi_Screen(object):
 			self.selection += 1
 			if self.selection > 3:
 				self.selection = 0
+				
+		#Sets a black screen ready for our UI elements
+		self.surface.fill(black)
 
 
 		# list to hold the data labels
@@ -1144,6 +1147,7 @@ class Thermal_Screen(object):
 			self.t_grid.push(self.surface)
 		elif self.selection == 1:
 			self.t_grid_full.push(self.surface)
+
 		#draws UI to frame buffer
 		pygame.display.update()
 
