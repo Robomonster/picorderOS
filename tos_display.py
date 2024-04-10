@@ -575,6 +575,9 @@ class Master_Systems_Display(object):
 			if self.selection > 3:
 				self.selection = 0
 
+		#Sets a black screen ready for our UI elements
+		self.surface.fill(black)
+
 		# pulls data from the modulated_em.py
 		wifi = "SSID: " + os.popen("iwgetid").readline()
 
@@ -586,7 +589,6 @@ class Master_Systems_Display(object):
 		except:
 			IPAddr = "No IP Found"
 		
-
 		ip_str = "IP:  " + IPAddr
 		host_str = "Name:  " + socket.gethostname()
 		sense_ready = "Sensors Avl:  " + str(len(configure.sensor_info))
@@ -599,7 +601,9 @@ class Master_Systems_Display(object):
 
 		self.list.draw(itemlist,self.surface)
 
-		
+		#draws UI to frame buffer
+		pygame.display.update()
+
 		return status
 
 # The graph screen object is a self contained screen that is fed the surface
@@ -1039,6 +1043,13 @@ class Wifi_Screen(object):
 			self.list.draw(list_for_labels,self.surface)
 		else:
 			self.list.draw(["No SSIDS Detected OR PLARS Error!"],self.surface)
+		
+
+		#draws UI to frame buffer
+		pygame.display.update()
+
+
+		return status
 
 # The thermal screen is fed the surface and taking the thermal array  
 # draws an interpolated rendering of the data for display
