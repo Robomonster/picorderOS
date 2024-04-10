@@ -173,7 +173,7 @@ class Label(object):
 # on update provide list of items to display, and draw object to draw to.
 class Label_List(object):
 
-	def __init__(self, x = 0, y = 0, colour = yellow, font = titleFont, size = 15):
+	def __init__(self, x = 0, y = 0, colour = white, font = titleFont, size = 15):
 
 		#initial coordinates
 		self.x = x
@@ -939,11 +939,6 @@ class Slider_Screen(object):
 		
 		# Uses the event class to set the status and check for state changes
 		status,payload  = self.events.check()
-
-		if payload == 1:
-			self.selection += 1
-			if self.selection > 3:
-				self.selection = 0
 		
 		senseslice = []
 
@@ -1011,6 +1006,148 @@ class Wifi_Screen(object):
 
 		self.list = Label_List()
 
+	def frequency_map(self):
+		# returns the data necessary for freq_intensity map with EM.
+		# displays each SSID as a line segment. Its position along the x is
+		# determined by frequency. Its height by its signal strength.
+
+		# value to store visualization envelope
+		vizX1 = 20
+		vizY1 = 36
+		vizX2 = 157
+		vizY2 = 77
+
+		ballsize = 6
+
+		focus_freq = 0
+		overlapping = []
+
+		# change Background
+		#draw.rectangle((0,0,320,240),(0,0,0))
+		#draw._image = self.burgerfull	
+
+
+
+		#draw labels
+		self.draw_title("EM Channel Analysis", draw)
+
+		#grab EM list
+		unsorted_em_list = plars.get_recent_em_list()
+
+
+		if len(unsorted_em_list) > 0:
+
+			# sort it so strongest is first.
+			em_list = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
+
+			# create a list to hold just the info we need for the screen.
+			items_list = []
+			strength_list = []
+
+			for ssid in em_list:
+				strength = ssid[1]
+				strength_list.append(strength)
+
+			#filter info into items_list
+			for ssid in em_list:
+				name = str(ssid[0])
+				strength = ssid[1]
+				frequency = ssid[3]
+				#frequency = float(frequency.replace(' GHz', ''))
+
+				# determing x coordinate
+				screenpos = numpy.interp(frequency,(2.412, 2.462),(vizX1 + ballsize, vizX2 - ballsize))
+
+				# determine y coordinate
+				lineheight = numpy.interp(strength, (min(strength_list), max(strength_list)), (vizY2 - ballsize, vizY1 + ballsize))
+
+				# package into list
+				this_ssid = (name,screenpos,lineheight,strength,frequency)
+				items_list.append(this_ssid)
+				
+
+
+			# draw lines and balls
+			#for each item in item_list, in reverse order
+			for index, item in reversed(list(enumerate(items_list))):
+
+				# determine dot coordinates.
+				cords = ((item[1],vizY2),(item[1],item[2]))
+				radius = ballsize/2
+				x1 = cords[1][0] - (radius)
+				y1 = cords[1][1] - (radius)
+				x2 = cords[1][0] + (radius)
+				y2 = cords[1][1] + (radius)
+
+				# if this is the strongest signal draw labels and change colour.
+				if index == 0:
+					pygame.draw.line(self.surface,cords,white,1)
+					pygame.draw.ellipse(self.surface,[x1,y1,x2,y2],white)
+
+
+					name = item[0]
+					trunc_name = name[:16] + (name[16:] and '..')
+
+					focus_freq = item[4]
+
+
+					# draw the strongest signals name
+					self.signal_name_sm.push(20,80,draw,string = trunc_name)
+
+					# put strength at lower left
+					strength_string = str(item[3]) + " DB"
+					#self.signal_strength_sm.push(19,114,draw,string = strength_string)
+
+					# put frequency at lower right
+					self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
+					self.signal_frequency_sm.r_align(155,82,draw)
+
+
+				# otherwise just draw the line and dot in the usual color
+				else:
+					pygame.draw.line(self.surface,cords,blue,1)
+					pygame.draw.ellipse(self.surface,[x1,y1,x2,y2],blue)
+
+		#draw round rect background
+		pygame.draw.rectangle(self.surface,white,pygame.rect(vizX1,vizY1,vizX2,vizY2))
+
+
+		label_list = []
+
+		for item in items_list:
+			if item[4] == focus_freq:
+				overlapping.append(item)
+
+
+
+
+		if len(overlapping) > 1:
+			del overlapping[0]
+			for ssid in overlapping:
+				name = ssid[0]
+				strength = ssid[1]
+				frequency = ssid[4]
+
+				# package into list
+				this_ssid = (name,strength)
+				label_list.append(this_ssid)
+
+			self.overlap_list.colour = lcars_pink
+		else:
+			thislist = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
+			del thislist[0]
+			for ssid in thislist:
+				name = ssid[0]
+				strength = ssid[1]
+				frequency = ssid[4]
+
+				# package into list
+				this_ssid = (name,strength)
+				label_list.append(this_ssid)
+			self.overlap_list.colour = lcars_blue
+
+		self.overlap_list.update(label_list,draw)
+
 	def frame(self):
 		# Uses the event class to set the status and check for state changes
 		status,payload  = self.events.check()
@@ -1047,6 +1184,7 @@ class Wifi_Screen(object):
 		else:
 			self.list.draw(["No SSIDS Detected OR PLARS Error!"],self.surface)
 		
+		self.frequency_map()
 
 		#draws UI to frame buffer
 		pygame.display.update()
@@ -1118,9 +1256,6 @@ class Thermal_Screen(object):
 
 		#Sets a black screen ready for our UI elements
 		self.surface.fill(black)
-
-		#draws Background gridplane
-		self.graphback.draw(self.surface)
 
 		if self.selection == 0:
 			self.average,self.high,self.low = self.t_grid.update()
