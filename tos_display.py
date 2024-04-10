@@ -1080,7 +1080,7 @@ class Wifi_Screen(object):
 
 				# if this is the strongest signal draw labels and change colour.
 				if index == 0:
-					pygame.draw.line(self.surface,cords,white,1)
+					pygame.draw.line(self.surface,white,cords[0],cords[1],width = 1)
 					pygame.draw.ellipse(self.surface,[x1,y1,x2,y2],white)
 
 
@@ -1104,8 +1104,8 @@ class Wifi_Screen(object):
 
 				# otherwise just draw the line and dot in the usual color
 				else:
-					pygame.draw.line(self.surface,cords,blue,1)
-					pygame.draw.ellipse(self.surface,[x1,y1,x2,y2],blue)
+					pygame.draw.line(self.surface,blue,cords[0],cords[1],width = 1)
+					pygame.draw.ellipse(self.surface,blue,pygame.rect(x1,y1,x2,y2),blue)
 
 		#draw round rect background
 		pygame.draw.rectangle(self.surface,white,pygame.rect(vizX1,vizY1,vizX2,vizY2))
