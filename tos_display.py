@@ -163,7 +163,7 @@ class Label(object):
 		width, height = self.myfont.size(content)
 		return width
 
-	# finally draws the text to screen
+	# finally renders the text and then blits to surface
 	def draw(self, surface):
 		label = self.myfont.render(self.content, 1, self.color)
 		surface.blit(label, (self.x, self.y))
