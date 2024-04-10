@@ -1156,8 +1156,8 @@ class Wifi_Screen(object):
 			if self.selection > 3:
 				self.selection = 0
 				
-			#Sets a black screen ready for our UI elements
-			self.surface.fill(black)
+		#Sets a black screen ready for our UI elements
+		self.surface.fill(black)
 
 
 		# list to hold the data labels
