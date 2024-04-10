@@ -1131,7 +1131,7 @@ class Wifi_Screen(object):
 				this_ssid = (name,strength)
 				label_list.append(this_ssid)
 
-			self.overlap_list.colour = lcars_pink
+			#self.overlap_list.colour = lcars_pink
 		else:
 			thislist = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
 			del thislist[0]
@@ -1143,9 +1143,9 @@ class Wifi_Screen(object):
 				# package into list
 				this_ssid = (name,strength)
 				label_list.append(this_ssid)
-			self.overlap_list.colour = lcars_blue
+			#$self.overlap_list.colour = lcars_blue
 
-		self.overlap_list.update(label_list,draw)
+		#self.overlap_list.update(label_list,draw)
 
 	def frame(self):
 		# Uses the event class to set the status and check for state changes
@@ -1156,8 +1156,8 @@ class Wifi_Screen(object):
 			if self.selection > 3:
 				self.selection = 0
 				
-		#Sets a black screen ready for our UI elements
-		self.surface.fill(black)
+			#Sets a black screen ready for our UI elements
+			self.surface.fill(black)
 
 
 		# list to hold the data labels
