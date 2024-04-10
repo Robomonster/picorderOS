@@ -213,7 +213,7 @@ class Label_List(object):
 			thislabel.draw(surface)
 
 			# increase the y position by the height of the last item, plus spacer
-			self.jump += (thislabel.get_size(string)[1] + self.spacer)
+			self.jump += (self.font.get_height() + self.spacer)
 
 		# when loop is over reset jump counter.
 		self.jump = 0
