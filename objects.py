@@ -75,10 +75,15 @@ class preferences(object):
 							'PIN_SCL':'3',
 
 							
-							'# Basic GPIO pins. For TR108/Beepy Specifically':None,
+							'# Basic GPIO button pins. For TR108/Beepy Specifically':None,
 							'pin_in0':'5',
 							'pin_in1':'6',
 							'pin_in2':'13',
+
+							'# Basic LED pins. For TR108 Specifically':None,
+							'pin_led0':'4',
+							'pin_led1':'17',
+							'pin_led2':'27',
 
 							'# Main board shift register pins':None,
 							'# The TR-109 supports two shift registers, and two sets of pin addresses':None,
@@ -92,6 +97,7 @@ class preferences(object):
 							'PIN_DATA2':'19',						# Sensor board shift register pins
 							'PIN_LATCH2':'21',
 							'PIN_CLOCK2':'26',
+							
 							'# Hall effect sensor pins, for door open/close detection':None,
 
 							'HALLPIN1':'12',						# Hall effect sensor pins, for door open and close
@@ -232,16 +238,21 @@ class preferences(object):
 		# i2c Pins
 		self.PIN_SDA = int(config['PIN ASSIGNMENTS']['pin_sda'])
 		self.PIN_SCL = int(config['PIN ASSIGNMENTS']['pin_scl'])
-
-		# the tr109 supports two shift registers, and so two sets of pin addresses
-		# prototype unit 00 and 01 have different pin assignments for latch and clock
-		# so these values may need to be swapped
-
+  
 		# Basic 3 GPIO pins (for tr108, beepcorder, anything with basic gpio)
 		self.PIN_IN0  = int(config['PIN ASSIGNMENTS']['pin_in0'])
 		self.PIN_IN1  = int(config['PIN ASSIGNMENTS']['pin_in1'])
 		self.PIN_IN2  = int(config['PIN ASSIGNMENTS']['pin_in2'])
 
+		# Basic 3 LED pins (for tr108 or anything with basic gpio)
+		self.PIN_LED0  = int(config['PIN ASSIGNMENTS']['pin_led0'])
+		self.PIN_LED1  = int(config['PIN ASSIGNMENTS']['pin_led1'])
+		self.PIN_LED2  = int(config['PIN ASSIGNMENTS']['pin_led2'])
+
+		# the tr109 supports two shift registers, and so two sets of pin addresses
+		# prototype unit 00 and 01 have different pin assignments for latch and clock
+		# so these values may need to be swapped
+  
 		# Main board shift register pins
 		self.PIN_DATA  = int(config['PIN ASSIGNMENTS']['pin_data'])
 		self.PIN_LATCH = int(config['PIN ASSIGNMENTS']['pin_latch'])
@@ -504,6 +515,7 @@ class Events(object):
 						payload = 0
 					elif isinstance(self.but_map[index], int):
 						payload = self.but_map[index]
+					
 					
 		else:
 			payload = 0

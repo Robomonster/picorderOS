@@ -15,6 +15,7 @@ from plars import *
 from objects import *
 from input import *
 from amg8833_pygame import *
+from operator import itemgetter
 
 
 if configure.video:
@@ -116,20 +117,20 @@ def butswitch():
 # the following class defines simple text labels
 
 class Label(object):
-	def __init__(self):
-		self.x = 0
-		self.y = 0
-		self.color = white
-		self.fontSize = 30
-		self.myfont = pygame.font.Font(titleFont, self.fontSize)
-		text = "hello"
-		self.size = self.myfont.size(text)
+	def __init__(self,content = "hello", fontSize = 30, x = 0, y = 0, color = white, font = titleFont):
+		self.x = x
+		self.y = y
+		self.color = color
+		self.fontSize = fontSize
+		self.myfont = pygame.font.Font(font, self.fontSize)
+		self.content = content
+		self.size = self.myfont.size(self.content)
 		self.scaler = 3
 
 	# Sets the paramaters of the text, used when ready to push the text.
-	def update(self, content, fontSize, nx, ny, fontType, color):
-		self.x = nx
-		self.y = ny
+	def update(self, content, fontSize, newx, newy, fontType, color):
+		self.x = newx
+		self.y = newy
 		self.content = content
 		self.fontSize = fontSize
 		self.myfont = pygame.font.Font(fontType, self.fontSize)
@@ -166,6 +167,56 @@ class Label(object):
 	def draw(self, surface):
 		label = self.myfont.render(self.content, 1, self.color)
 		surface.blit(label, (self.x, self.y))
+
+# a class to create a simple text list.
+# initialize with x/y coordinates
+# on update provide list of items to display, and draw object to draw to.
+class Label_List(object):
+
+	def __init__(self, x = 0, y = 0, colour = yellow, font = titleFont, size = 30):
+
+		#initial coordinates
+		self.x = x
+		self.y = y
+
+		# used in the loop to offset y location of items.
+		self.jump = 0
+
+		#adjusts the increase in seperation
+		self.spacer = 1
+
+		# holds the items to display
+		self.labels = []
+
+		self.font = font
+
+		self.colour = colour
+
+		self.size = size
+
+
+	# draws the list of items as a text list.
+	def draw(self, items, surface):
+
+		# clears label buffer.
+		self.labels = []
+
+		# for each item in the list of items to draw
+		for index, item in enumerate(items):
+
+			string = str(item)
+
+			# create a text item with the string.
+			thislabel = Label(content = string, color = self.colour, x = self.x, y = self.y + self.jump, fontSize = self.size)
+
+			# blit the text		
+			thislabel.draw()
+
+			# increase the y position by the height of the last item, plus spacer
+			self.jump += (thislabel.get_size()[1] + self.spacer)
+
+		# when loop is over reset jump counter.
+		self.jump = 0
 
 # this class provides functionality for interactive text labels.
 class SelectableLabel(Label):
@@ -270,7 +321,6 @@ class Image(object):
 	def draw(self, surface):
 		surface.blit(self.Img, (self.x,self.y))
 
-
 # The following class is used to prepare sensordata for display on the graph.
 class graphlist(object):
 
@@ -340,7 +390,6 @@ def graphit(data, auto = True):
 
 	return graphprep(prep)
 
-
 # the following function runs the startup animation
 def startUp(surface):
 	#This function draws the opening splash screen for the program that provides the user with basic information.
@@ -406,7 +455,7 @@ def about(surface):
 
 	mainTitle.update("Written in Python",17,37,210,titleFont,blue)
 	mainTitle.center(resolution[0],20,0,125)
-	secblurb.update("Developed By Chris Barrett",15,37,210,titleFont,blue)
+	secblurb.update("Developed By directive0",15,37,210,titleFont,blue)
 	secblurb.center(resolution[0],20,0,210)
 
 	#writes our objects to the buffer
@@ -419,8 +468,6 @@ def about(surface):
 	secblurb.draw(surface)
 
 	pygame.display.flip()
-
-
 
 class Settings_Panel(object):
 
@@ -470,7 +517,6 @@ class Settings_Panel(object):
 		self.option6.update("LEDs: ", 20, self.left_margin, 154, titleFont, orange)
 		self.option7.update("Moire: ", 20, self.left_margin, 176, titleFont, orange)
 
-
 	def frame(self):
 
 		self.surface.fill(black)
@@ -503,7 +549,58 @@ class Settings_Panel(object):
 
 		return result
 
+class Master_Systems_Display(object):
 
+	def __init__(self, surface):
+
+		self.surface = surface
+		self.events = Events([1,"wifi","settings"],"msd")
+
+		self.list = Label_List()
+		
+		# grabs the RPI model info
+		if not configure.pc:
+			text = os.popen("cat /proc/device-tree/model").readline()
+			self.model = str(text.rstrip("\x00")).replace("Raspberry Pi","Raspi")
+		else:
+			self.model = "Unknown CPU"
+
+	def frame(self):
+
+		# Uses the event class to set the status and check for state changes
+		status,payload  = self.events.check()
+
+		if payload == 1:
+			self.selection += 1
+			if self.selection > 3:
+				self.selection = 0
+
+		# pulls data from the modulated_em.py
+		wifi = "SSID: " + os.popen("iwgetid").readline()
+
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+		try:
+			s.connect(("8.8.8.8", 80))
+			IPAddr = s.getsockname()[0]
+		except:
+			IPAddr = "No IP Found"
+		
+
+		ip_str = "IP:  " + IPAddr
+		host_str = "Name:  " + socket.gethostname()
+		sense_ready = "Sensors Avl:  " + str(len(configure.sensor_info))
+		cpu_name = "CPU:  " + self.model
+		PLARS_size, PLARS_em_size = plars.get_plars_size()
+		db_size = "PLARS Size:  " + str(PLARS_size)
+		em_size = "PLARS EM Size:  " + str(PLARS_em_size)
+
+		itemlist = [wifi, ip_str, host_str, sense_ready, cpu_name, db_size, em_size]
+
+		self.list.draw(itemlist,self.surface)
+
+		
+		return status
 
 # The graph screen object is a self contained screen that is fed the surface
 # and the sensor at the current moment and draws a frame when called.
@@ -738,7 +835,7 @@ class Graph_Screen(object):
 	def visible(self,item,option):
 		self.visibility[item] = option
 
-#experimental video screen written by scifi.radio from the mycorder discord
+# Video screen written by scifi.radio from the mycorder discord
 class Video_Playback(object):
 	def __init__(self,surface):
 		self.status = "video"
@@ -779,7 +876,7 @@ class Video_Playback(object):
 			return self.status
 
 		if payload == 2:
-			self.status = "graph"
+			self.status = "msd"
 			configure.eventready[0] = False
 			self.running = False
 			self.clip.close()
@@ -804,7 +901,6 @@ class Video_Playback(object):
 			self.clip.restart()
 
 		return self.status
-
 
 class Slider_Screen(object):
 	def __init__(self, surface):
@@ -833,7 +929,7 @@ class Slider_Screen(object):
 		self.status = "graph"
 		self.input = input
 
-		self.events = Events(["graph","thermal","settings"],"slider")
+		self.events = Events([1,"thermal","settings"],"slider")
 
 	def frame(self):
 		
@@ -903,6 +999,47 @@ class Slider_Screen(object):
 		# draws UI to frame buffer
 		return status
 
+class Wifi_Screen(object):
+
+	def __init__(self):
+		
+		self.events = Events([1,"graph","settings"],"wifi")
+
+		self.list = Label_List()
+
+	def frame(self):
+		# Uses the event class to set the status and check for state changes
+		status,payload  = self.events.check()
+
+		if payload == 1:
+			self.selection += 1
+			if self.selection > 3:
+				self.selection = 0
+
+
+		# list to hold the data labels
+		list_for_labels = []
+
+		# grab EM list
+		em_list = plars.get_recent_em_list()
+
+		if len(em_list) > 0:
+			#sort it so strongest is first
+			sorted_em_list = sorted(em_list, key=itemgetter(1), reverse = True)
+
+			# prepare a list of the data received for display
+			for ssid in sorted_em_list:
+				name = str(ssid[0])
+				strength = str(ssid[1])
+
+				label = strength + " dB • " + name
+
+				list_for_labels.append(label)
+
+			self.list.draw(list_for_labels,self.surface)
+		else:
+			self.list.draw(["No SSIDS Detected OR PLARS Error!"],self.surface)
+
 # The thermal screen is fed the surface and taking the thermal array  
 # draws an interpolated rendering of the data for display
 # - shows the thermal output
@@ -927,7 +1064,6 @@ class Thermal_Screen(object):
 		self.drawinterval = timer()
 
 		# Sample rate controller
-		self.senseinterval = 0
 
 		# Pygame drawing surface.
 		self.surface = surface
@@ -949,7 +1085,7 @@ class Thermal_Screen(object):
 		self.intervallabel = Label()
 		self.intervallabelshadow = Label()
 
-		self.t_grid = ThermalGrid(17,19,287,184)
+		self.t_grid = ThermalGrid(16,15,270,180)
 		self.t_grid_full = ThermalGrid(0,0,320,240)
 
 		self.symbol = "°c"
@@ -1005,6 +1141,7 @@ class Thermal_Screen(object):
 
 	def visible(self,item,option):
 		self.visibility[item] = option
+
 # A basic screen object. Is given parameters and displays them on a number of preset panels
 class Screen(object):
 
@@ -1038,7 +1175,8 @@ class Screen(object):
 		self.slidescreen = Slider_Screen(self.surface)
 		self.settings_screen = Settings_Panel(self.surface)
 		self.thermalscreen = Thermal_Screen(self.surface)
-
+		self.msdscreen = Master_Systems_Display(self.surface)
+		self.wifiscreen = Wifi_Screen(self.surface)
 
 		# carousel dict to hold the keys and defs for each state
 		self.carousel = {"startup":self.startup_screen,
@@ -1046,6 +1184,8 @@ class Screen(object):
 				   "video":self.video_screen,
 				   "slider":self.slider_screen,
 				   "thermal":self.thermal_screen,
+				   "wifi":self.wifi_screen,
+				   "msd":self.msd_screen,
 				   "settings":self.settings}
 
 
@@ -1070,6 +1210,14 @@ class Screen(object):
 	
 	def thermal_screen(self):
 		status = self.thermalscreen.frame()
+		return status
+	
+	def wifi_screen(self):
+		status = self.wifiscreen.frame()
+		return status
+	
+	def msd_screen(self):
+		status = self.msdscreen.frame()
 		return status
 
 	def video_screen(self):

@@ -2,10 +2,12 @@ from objects import *
 import simpleaudio as sa
 print("Loading Audio Thread")
 
+#109 Sounds
 scansound = sa.WaveObject.from_wave_file("assets/scanning.wav")
 clicksound = sa.WaveObject.from_wave_file("assets/clicking.wav")
 beepsound = sa.WaveObject.from_wave_file("assets/beep.wav")
 alarmsound = sa.WaveObject.from_wave_file("assets/alarm.wav")
+
 
 
 sounds = [scansound, clicksound]
