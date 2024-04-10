@@ -1028,8 +1028,7 @@ class Wifi_Screen(object):
 
 
 
-		#draw labels
-		self.draw_title("EM Channel Analysis", draw)
+
 
 		#grab EM list
 		unsorted_em_list = plars.get_recent_em_list()
