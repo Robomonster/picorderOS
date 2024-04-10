@@ -8,7 +8,7 @@ print("Loading 320x240 Duotronic Interface")
 from asyncio import sleep
 from pickle import FALSE
 import pygame, time, os
-
+import socket
 
 from pathlib import Path
 from plars import *
