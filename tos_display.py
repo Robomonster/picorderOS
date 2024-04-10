@@ -178,6 +178,7 @@ class Label_List(object):
 		#initial coordinates
 		self.x = x
 		self.y = y
+		print("labellist coords", self.x, self.y)
 
 		# used in the loop to offset y location of items.
 		self.jump = 0
