@@ -1174,14 +1174,15 @@ class Wifi_Screen(object):
 			sorted_em_list = sorted(em_list, key=itemgetter(1), reverse = True)
 
 			# prepare a list of the data received for display
-			for ssid in sorted_em_list:
+			for ssid in sorted_em_list:	
 				name = str(ssid[0])
 				strength = str(ssid[1])
 
 				label = strength + " dB • " + name
 
 				list_for_labels.append(label)
-
+			self.list.x = 14
+			self.list.y = 17
 			self.list.draw(list_for_labels,self.surface)
 		else:
 			self.list.draw(["No SSIDS Detected OR PLARS Error!"],self.surface)
