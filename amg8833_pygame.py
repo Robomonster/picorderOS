@@ -184,8 +184,8 @@ class ThermalGrid(object):
 		self.average = 0
 		self.ticks = 0
 
-		self.displayPixelWidth = self.w // 30
-		self.displayPixelHeight = self.h // 30
+		self.displayPixelWidth = self.w / 30
+		self.displayPixelHeight = self.h / 30
 
 		self.dummy = [
 				[0,0,0,0,0,0,0,0],
