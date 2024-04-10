@@ -1004,7 +1004,7 @@ class Wifi_Screen(object):
 		self.surface = surface
 		self.events = Events([1,"graph","settings"],"wifi")
 
-		self.list = Label_List()
+		self.list = Label_List(x = 14, y = 17)
 
 	def frequency_map(self):
 		# returns the data necessary for freq_intensity map with EM.
@@ -1012,10 +1012,10 @@ class Wifi_Screen(object):
 		# determined by frequency. Its height by its signal strength.
 
 		# value to store visualization envelope
-		vizX1 = 20
-		vizY1 = 36
-		vizX2 = 157
-		vizY2 = 77
+		vizX1 = 14
+		vizY1 = 16
+		vizX2 = 307
+		vizY2 = 110
 
 		ballsize = 6
 
