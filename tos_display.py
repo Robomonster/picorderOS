@@ -1001,8 +1001,8 @@ class Slider_Screen(object):
 
 class Wifi_Screen(object):
 
-	def __init__(self):
-		
+	def __init__(self, surface):
+		self.surface = surface
 		self.events = Events([1,"graph","settings"],"wifi")
 
 		self.list = Label_List()
