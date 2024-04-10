@@ -173,7 +173,7 @@ class Label(object):
 # on update provide list of items to display, and draw object to draw to.
 class Label_List(object):
 
-	def __init__(self, x = 0, y = 0, colour = yellow, font = titleFont, size = 30):
+	def __init__(self, x = 0, y = 0, colour = yellow, font = titleFont, size = 15):
 
 		#initial coordinates
 		self.x = x
