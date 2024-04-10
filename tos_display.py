@@ -199,15 +199,10 @@ class Label_List(object):
 	# draws the list of items as a text list.
 	def draw(self, items, surface):
 
-		# clears label buffer.
-		self.labels = []
-
 		# for each item in the list of items to draw
 		for index, item in enumerate(items):
 
 			string = str(item)
-
-			print("labellist coords", self.x, self.y)
 
 			# create a text item with the string.
 			thislabel = Label()
