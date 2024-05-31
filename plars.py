@@ -76,7 +76,9 @@ def join_dataframes(buffer,newdata):
 		# if the new data frame isn't empty
 		if len(newdata) > 0:
 			# appends the new data to the buffer
-			result = pd.concat([buffer,newdata], ignore_index=True)
+
+			result = pd.concat([buffer,newdata]).drop_duplicates().reset_index(drop=True)
+
 		else:
 			result = buffer
 	#if the buffer IS EMPTY
