@@ -66,24 +66,6 @@ map = """             @   .-
                                                
 -----------------------------------------------"""
 
-def scan_i2c_bus(bus_number=1):
-    """
-    Scans the specified I2C bus for devices.
-
-    :param bus_number: The I2C bus number to scan. Default is 1.
-    :return: A list of addresses of the detected I2C devices.
-    """
-    devices = []
-    bus = smbus2.SMBus(bus_number)
-    for address in range(0x03, 0x78):
-        try:
-            bus.write_byte(address, 0)
-            devices.append(hex(address))
-        except OSError as e:
-            # Device not found at this address
-            pass
-    bus.close()
-    return devices
 
 
 class Start_Frame(object):
@@ -461,21 +443,13 @@ class Diagnostic_Frame(object):
 		
 		stdscr.addstr(4, 2, thislist_str)
 
-		stdscr.addstr(7,2,"i2c Devices")
+		stdscr.addstr(6,2,"GPIO Status")
 
-		# list to hold the data labels
-		list_for_labels = []
-
-		# grab devices
-
-		devices = scan_i2c_bus()
-
-		if len(devices) > 0:
-			for y, line in enumerate(list_for_labels, 8):
-				if y <= stdscr.getmaxyx()[0]:
-					stdscr.addstr(y, 2, line)
-		else:
-			stdscr.addstr(2, 2, "No devices detected OR smbus2 error!")
+		
+		stdscr.addstr(8,2,configure.dr_open)
+		stdscr.addstr(9,2,configure.dr_closed)
+		stdscr.addstr(10,2,configure.dr_opening)
+		stdscr.addstr(11,2,configure.dr_closing)
 
 		return status
 
