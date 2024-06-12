@@ -432,15 +432,14 @@ class Diagnostic_Frame(object):
 		stdscr.addstr(3, 2, self.eventlist_str)
 		thislist_str = ""
 
-		if configure.eventready[0]:
-			thisevent = configure.eventlist[0]
-		
-			for i in range(8):
-				if thisevent[i]:
-					thislist_str += "X "
-				else:
-					thislist_str += "_ "
-		
+		thisevent = configure.eventlist[0]
+	
+		for i in range(8):
+			if thisevent[i]:
+				thislist_str += "X "
+			else:
+				thislist_str += "_ "
+	
 		stdscr.addstr(4, 2, thislist_str)
 
 		stdscr.addstr(6,2,"GPIO Status")
