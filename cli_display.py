@@ -446,10 +446,10 @@ class Diagnostic_Frame(object):
 		stdscr.addstr(6,2,"GPIO Status")
 
 		
-		stdscr.addstr(8,2,configure.dr_open[0])
-		stdscr.addstr(9,2,configure.dr_closed[0])
-		stdscr.addstr(10,2,configure.dr_opening[0])
-		stdscr.addstr(11,2,configure.dr_closing[0])
+		stdscr.addstr(8,2,str(configure.dr_open[0]))
+		stdscr.addstr(9,2,str(configure.dr_closed[0]))
+		stdscr.addstr(10,2,str(configure.dr_opening[0]))
+		stdscr.addstr(11,2,str(configure.dr_closing[0]))
 
 		return status
 
