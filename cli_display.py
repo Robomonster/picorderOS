@@ -430,7 +430,7 @@ class Diagnostic_Frame(object):
 		self.timer = timer()
 		self.interval = 2
 
-		self.events = Events(["multi",0,0],"diagnostic")
+		self.events = Events([0,0,0],"diagnostic")
 		
 		#records already pressed inputs (for mapping)
 		self.pressed = []
@@ -441,6 +441,9 @@ class Diagnostic_Frame(object):
 
 
 	def display(self):
+
+		# returns mode to the main loop unless something causes state change
+		status,payload  = self.events.check()
 
 		# show a list of the possible inputs, and place the raw input next to it
 		# so the user can adjust their button map as needed (to make final wiring trivial)
