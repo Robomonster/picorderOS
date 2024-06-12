@@ -4,8 +4,8 @@ import os
 import psutil
 import numpy
 import socket
-
-
+import smbus2
+import time
 
 from operator import itemgetter
 
@@ -65,6 +65,25 @@ map = """             @   .-
             @                                @ 
                                                
 -----------------------------------------------"""
+
+def scan_i2c_bus(bus_number=1):
+    """
+    Scans the specified I2C bus for devices.
+
+    :param bus_number: The I2C bus number to scan. Default is 1.
+    :return: A list of addresses of the detected I2C devices.
+    """
+    devices = []
+    bus = smbus2.SMBus(bus_number)
+    for address in range(0x03, 0x78):
+        try:
+            bus.write_byte(address, 0)
+            devices.append(hex(address))
+        except OSError as e:
+            # Device not found at this address
+            pass
+    bus.close()
+    return devices
 
 
 class Start_Frame(object):
@@ -394,6 +413,69 @@ class Master_Systems_Display_Frame(object):
 		
 		return status
 
+
+
+# hardware status needs to show:
+# -GPIO Pin Status for 
+#		-Door Open/Close Hall Effect Sensors
+# -Input Keymap Listing
+#		- Lay out keymap and fill in buttons as they are pressed.
+# -Show hardware peripherls
+#		- List sensors on i2c?
+
+
+class Diagnostic_Frame(object):
+	def __init__(self):
+
+		self.timer = timer()
+		self.interval = 2
+
+		self.events = Events(["multi",0,0],"diagnostic")
+		
+		#records already pressed inputs (for mapping)
+		self.pressed = []
+		for i in range(8):
+			self.pressed.append(False)
+
+		self.eventlist_str = "0 1 2 3 4 5 6 7 "
+
+
+	def display(self):
+
+		# show a list of the possible inputs, and place the raw input next to it
+		# so the user can adjust their button map as needed (to make final wiring trivial)
+		stdscr.addstr(3, 2, self.eventlist_str)
+		thislist_str = ""
+
+		if configure.eventready[0]:
+			thisevent = configure.eventlist[0]
+		
+			for i in range(8):
+				if thisevent[i]:
+					thislist_str += "X "
+				else:
+					thislist_str += "_ "
+		
+		stdscr.addstr(4, 2, thislist_str)
+
+		stdscr.addstr(7,2,"i2c Devices")
+
+		# list to hold the data labels
+		list_for_labels = []
+
+		# grab devices
+
+		devices = scan_i2c_bus()
+
+		if len(devices) > 0:
+			for y, line in enumerate(list_for_labels, 8):
+				if y <= stdscr.getmaxyx()[0]:
+					stdscr.addstr(y, 2, line)
+		else:
+			stdscr.addstr(2, 2, "No devices detected OR smbus2 error!")
+
+		return status
+
 class Position_Frame(object):
 	def __init__(self):
 		self.last_position = [47,47]
@@ -501,7 +583,7 @@ class EM_Frame(object):
 					if y <= stdscr.getmaxyx()[0]:
 						stdscr.addstr(y, 2, line)
 			else:
-				stdscr.addstr(2, 2, "No SSIDS Detected OR PLARS Error!")
+				stdscr.addstr(2, 2, "No SSIDS detected OR PLARS error!")
 
 
 	def em_statistics(self):
@@ -547,6 +629,7 @@ class CLI_Display(object):
 		self.em_frame = EM_Frame()
 		self.position_frame = Position_Frame()
 		self.msd_frame = Master_Systems_Display_Frame()
+		self.diagnostic_frame = Diagnostic_Frame()
 
 		# carousel dict to hold the keys and defs for each state
 		self.carousel = {"startup":self.start_up,
@@ -555,7 +638,8 @@ class CLI_Display(object):
 				   "settings":self.settings,
 				   "position":self.position,
 				   "msd":self.msd,
-				   "powerdown":self.powerdown}
+				   "powerdown":self.powerdown,
+				   "diagnostic":self.diagnostic}
 
 		self.labels = {"startup":"[CLI MODE]",
 				   "multi":"[MULTI GRAPH]",
@@ -563,7 +647,8 @@ class CLI_Display(object):
 				   "settings":"[OPERATION]",
 				   "position":"[GEOGRAPHIC POSITION]",
 				   "msd":"[MASTER SYSTEM DISPLAY]",
-				   "powerdown":"[POWERDOWN]"}
+				   "powerdown":"[POWERDOWN]",
+				   "diagnostic": "[L1 DIAGNOSTIC]"}
 
 	def start_up(self):
 		return self.startup.display()
@@ -582,6 +667,9 @@ class CLI_Display(object):
 
 	def msd(self):
 		return self.msd_frame.display()
+
+	def diagnostic(self):
+		return self.diagnostic_frame.display()
 
 	def powerdown(self):
 		pass

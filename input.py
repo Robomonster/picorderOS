@@ -28,6 +28,9 @@ from objects import *
 # stores the number of buttons to be queried
 buttons = 16
 
+# button map for rearranging control scheme
+button_map = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8}
+
 threshold = 3
 release_threshold = 2
 
@@ -436,3 +439,10 @@ def threaded_input():
 		if timed.timelapsed() > configure.samplerate[0]:
 			input.read()
 			timed.logtime()
+
+def input_tester():
+	inputs = Inputs()
+
+	while True:
+		print(inputs.read())
+		
