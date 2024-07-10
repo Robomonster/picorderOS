@@ -413,13 +413,13 @@ class Diagnostic_Frame(object):
 		self.interval = 2
 
 		self.events = Events([0,0,0],"diagnostic")
+		self.buffer = []
 		
 		#records already pressed inputs (for mapping)
 		self.pressed = []
 		for i in range(8):
 			self.pressed.append(False)
 
-		self.eventlist_str = "0 1 2 3 4 5 6 7 "
 
 
 	def display(self):
@@ -427,28 +427,22 @@ class Diagnostic_Frame(object):
 		# returns mode to the main loop unless something causes state change
 		status,payload  = self.events.check()
 
-		# show a list of the possible inputs, and place the raw input next to it
-		# so the user can adjust their button map as needed (to make final wiring trivial)
-		stdscr.addstr(3, 2, self.eventlist_str)
-		thislist_str = ""
+		# show current event list state.
+		# may need to add functionality to store list 
+		# since the refresh may be too fast
+		# Keeps it easily viewable and resets after timeout
 
-		thisevent = configure.eventlist[0]
-	
-		for i in range(8):
-			if thisevent[i]:
-				thislist_str += "X "
-			else:
-				thislist_str += "_ "
-	
+		thisevent = str(configure.eventlist[0])
+		
+		stdscr.addstr(3,2,"Event List Status")
 		stdscr.addstr(4, 2, thislist_str)
 
 		stdscr.addstr(6,2,"GPIO Status")
-
-		
 		stdscr.addstr(8,2,str(configure.dr_open[0]))
 		stdscr.addstr(9,2,str(configure.dr_closed[0]))
 		stdscr.addstr(10,2,str(configure.dr_opening[0]))
 		stdscr.addstr(11,2,str(configure.dr_closing[0]))
+
 
 		return status
 

@@ -62,6 +62,8 @@ class preferences(object):
 							'capsensitivity':'50',
 							'# Manual control allows the front end to provide its own operator input handling':None,
 							'manual_input':'no',
+							'# Use a button map for assigning input pins to specific functions instead of hardwired assignments':None,
+							'button_map':'no',
 							}							
 		
 		config['OUTPUT'] = {'# Display Target (for luma/other driver etc) 1 is st7735 Luma Display.':None,
@@ -225,6 +227,7 @@ class preferences(object):
 		self.input_pcf8575 = self.str2bool(config['INPUT']['pcf8575'])
 		self.input_joystick = self.str2bool(config['INPUT']['sensehat_joystick'])
 		self.manual_input = self.str2bool(config['INPUT']['manual_input'])
+		self.button_map = self.str2bool(config['INPUT']['button_map'])
 
 		# CAP1208 and sensitivity settings
 		self.input_cap1208 = self.str2bool(config['INPUT']['cap1208'])

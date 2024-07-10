@@ -17,19 +17,22 @@ print("Loading Unified Input Module")
 # The TR-108 only has 3 buttons
 
 # Max number of buttons for tr109 style (TNG)
-#	0	1	 2    3  	4	 5	  6  7		8				9			10		11	  		12  13  14
+#	0	1	 2    3  	4	 5	  6  7		8				9			10		11	  		12     13  14  15 
 # geo, met, bio, lib, pwr, f1/f2, I, E, accpt/pool, intrship/tricrder, EMRG, fwd/input, rvs/erase, Ib, Eb, Id
 # next, enter, cancel/switch
 
 import time
+import os
 from objects import *
 
 
 # stores the number of buttons to be queried
 buttons = 16
 
-# button map for rearranging control scheme
-button_map = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8}
+# button map for rearranging control scheme (for making wiring input easier)
+# first number is where input currently is connected (pin number)
+# second number is where input should go.
+button_map = {0:1, 1:2, 2:4, 3:5, 4:6, 5:7, 6:3, 7:0, 8:8, 9:9, 10:10, 11:11, 12:12, 13:13, 14:14, 15:15}
 
 threshold = 3
 release_threshold = 2
@@ -52,7 +55,6 @@ if configure.tr109:
 	GPIO.setup(hallpin1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 	GPIO.setup(hallpin2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-
 if configure.power:
 	powerpin = configure.LOW_POWER_PIN
 	GPIO.setup(powerpin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -67,7 +69,6 @@ if configure.input_kb:
 	from sshkeyboard import listen_keyboard
 	keys = ['left','down','right']
 
-
 # set up requirements for GPIO based inputs
 if configure.input_gpio:
 
@@ -78,9 +79,6 @@ if configure.input_gpio:
 
 	for pin in pins:
 		GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-
-
 
 # set up requirements for capacitive buttons using an mpr121
 if configure.input_cap_mpr121:
@@ -417,7 +415,22 @@ class Inputs(object):
 
 		# adds any new events to the eventlist
 		if not configure.manual_input:
-			configure.eventlist[0] = self.pressed
+
+			# If button map is on
+			if configure.input_override:
+
+				#make a dummy list
+				resultantmap = False * 16
+
+				# iterate through the completed button list
+				for pos, input in enumerate(self.pressed):
+					# put the input result of current pos in the spot it should be according to button map
+					resultantmap[button_map[pos]] = input
+
+				configure.eventlist[0] = resultantmap
+
+			else:
+				configure.eventlist[0] = self.pressed
 
 
 	def keypress(self):
@@ -442,7 +455,24 @@ def threaded_input():
 
 def input_tester():
 	inputs = Inputs()
+	timed = timer()
+	timed.logtime()
+	# clear the event flag.
+	configure.eventready[0] = False
+	run = True
 
-	while True:
-		print(inputs.read())
+	while run:
+		inputs.read()
+		if configure.eventready[0]:
+			for pos, input in enumerate(configure.eventlist[0]):
+				if input:
+					print(pos)
+			configure.eventready[0] = False
+			run = False
+
+		if configure.tr109 and configure.dr[0]:
+			print("hall 1 = ", str(GPIO.input(hallpin1)))
+			print("hall 2 = ", str(GPIO.input(hallpin2)))
 		
+		if run:
+			os.system('clear')
