@@ -417,7 +417,7 @@ class Inputs(object):
 		if not configure.manual_input:
 
 			# If button map is on
-			if configure.input_override:
+			if configure.button_map:
 
 				#make a dummy list
 				resultantmap = False * 16
