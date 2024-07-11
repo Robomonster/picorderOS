@@ -424,7 +424,7 @@ class PLARS(object):
 
 		return result2
 
-	def get_thermal(self):
+	def get_thermal_frame(self):
 
 		# sets/requests the thread lock to prevent other threads reading data.
 		self.lock.acquire()
