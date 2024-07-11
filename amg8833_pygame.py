@@ -208,6 +208,7 @@ class ThermalGrid(object):
 				self.rows[i].update(self.data[i],self.high,self.low,surface)
 		else:
 			self.interpolate(surface)
+			
 	# Function to draw a pretty pattern to the display for demonstration.
 	def animate(self):
 
@@ -258,7 +259,7 @@ class ThermalGrid(object):
 	def update(self):
 
 		if configure.amg8833:
-			self.data = plars.thermal_frame
+			self.data = plars.get_thermal_frame()
 
 			if len(self.data) < 1:
 				self.data = self.dummy

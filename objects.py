@@ -507,7 +507,7 @@ class Events(object):
 				resultantmap = [False] * 16
 
 				# iterate through the completed button list
-				for pos, input in enumerate(self.pressed):
+				for pos, input in enumerate(keys):
 					# put the input result of current pos in the spot it should be according to button map
 					resultantmap[self.button_map[pos]] = input
 

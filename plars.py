@@ -337,7 +337,14 @@ class PLARS(object):
 
 	# updates the thermal frame for display
 	def update_thermal(self, frame):
+
+		# sets/requests the thread lock to prevent other threads reading data.
+		self.lock.acquire()
+
 		self.thermal_frame = frame
+
+		# release the thread lock for other threads
+		self.lock.release()
 
 
 	# updates the dataframe in memory with the most recent sensor values from each
@@ -399,8 +406,6 @@ class PLARS(object):
 		if len(result[1]) > 0:			
 			timelength = max(result[1]) - min(result[1])
 
-
-
 		return values, timelength
 
 
@@ -419,6 +424,17 @@ class PLARS(object):
 
 		return result2
 
+	def get_thermal(self):
+
+		# sets/requests the thread lock to prevent other threads reading data.
+		self.lock.acquire()
+
+		thermalframe = self.thermal_frame
+
+		# release the thread lock for other threads
+		self.lock.release()
+
+		return thermalframe
 
 	def index_by_time(self,df, ascending = False):
 		df.sort_values(by=['timestamp'], ascending = ascending)
