@@ -29,10 +29,7 @@ from objects import *
 # stores the number of buttons to be queried
 buttons = 16
 
-# button map for rearranging control scheme (for making wiring input easier)
-# first number is where input currently is connected (pin number)
-# second number is where input should go.
-button_map = {0:1, 1:2, 2:4, 3:5, 4:6, 5:7, 6:3, 7:0, 8:8, 9:9, 10:10, 11:11, 12:12, 13:13, 14:14, 15:15}
+
 
 threshold = 3
 release_threshold = 2
@@ -414,23 +411,8 @@ class Inputs(object):
 						self.pressed[button_table[this]] = False
 
 		# adds any new events to the eventlist
-		if not configure.manual_input:
-
-			# If button map is on
-			if configure.button_map:
-
-				#make a dummy list
-				resultantmap = False * 16
-
-				# iterate through the completed button list
-				for pos, input in enumerate(self.pressed):
-					# put the input result of current pos in the spot it should be according to button map
-					resultantmap[button_map[pos]] = input
-
-				configure.eventlist[0] = resultantmap
-
-			else:
-				configure.eventlist[0] = self.pressed
+		if configure.manual_input:
+			configure.eventlist[0] = self.pressed
 
 
 	def keypress(self):

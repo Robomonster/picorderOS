@@ -481,6 +481,10 @@ class Events(object):
 	def __init__(self, but_map, base):
 		self.but_map = but_map
 		self.base = base
+		# button map for rearranging control scheme (for making wiring input easier)
+		# first number is where input currently is connected (pin number)
+		# second number is where input should go.
+		self.button_map = {0:1, 1:2, 2:4, 3:5, 4:6, 5:7, 6:3, 7:0, 8:8, 9:9, 10:10, 11:11, 12:12, 13:13, 14:14, 15:15}
 
 	def check(self):
 		
@@ -495,6 +499,20 @@ class Events(object):
 			
 			# grab the event list
 			keys = configure.eventlist[0]
+
+			# If button map is on
+			if configure.button_map:
+
+				#make a dummy list
+				resultantmap = [False] * 16
+
+				# iterate through the completed button list
+				for pos, input in enumerate(self.pressed):
+					# put the input result of current pos in the spot it should be according to button map
+					resultantmap[self.button_map[pos]] = input
+
+				keys = resultantmap
+
 
 			# cycle through each of inputs in the list
 			for index, key in enumerate(keys):
