@@ -96,7 +96,7 @@ class Start_Frame(object):
 
 			if self.timesup.timelapsed() >= configure.boot_delay and configure.sensor_ready[0]:
 				self.started = False
-				return "multi"
+				return self.bootto
 
 
 		return "startup"
@@ -664,36 +664,6 @@ class EM_Frame(object):
 					else:
 						stdscr.addstr(item[2],item[1],"o")
 						self.line_draw(item[1],item[2],self.vizY2)
-
-
-			label_list = []
-
-			for item in items_list:
-				if item[4] == focus_freq:
-					overlapping.append(item)
-
-
-			if len(overlapping) > 1:
-				del overlapping[0]
-				for ssid in overlapping:
-					name = ssid[0]
-					strength = ssid[1]
-					frequency = ssid[4]
-
-					# package into list
-					this_ssid = (name,strength)
-					label_list.append(this_ssid)
-			else:
-				thislist = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
-				del thislist[0]
-				for ssid in thislist:
-					name = ssid[0]
-					strength = ssid[1]
-					frequency = ssid[4]
-
-					# package into list
-					this_ssid = (name,strength)
-					label_list.append(this_ssid)
 
 	def display(self):
 
