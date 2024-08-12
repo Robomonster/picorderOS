@@ -523,6 +523,12 @@ class EM_Frame(object):
 
 		self.events = Events(["position",0,0],"modem")
 
+
+
+	def line_draw(self, x, y1, y2):
+		for char in range(y1,y2)
+			stdscr.addstr(char,x,"|")
+
 	# Draws a list of APs with data.
 	def em_scan(self):
 			
@@ -572,6 +578,122 @@ class EM_Frame(object):
 		for y, line in enumerate(list_for_labels, 3):
 			if y <= stdscr.getmaxyx()[0]:
 				stdscr.addstr(y, 2, line)
+
+	def frequency_map(self):
+		# returns the data necessary for freq_intensity map with EM.
+		# displays each SSID as a line segment. Its position along the x is
+		# determined by frequency. Its height by its signal strength.
+
+			focus_freq = 0
+			overlapping = []
+
+			#grab EM list
+			unsorted_em_list = plars.get_recent_em_list()
+			noossids = len(unsorted_em_list)
+
+
+			if len(unsorted_em_list) > 0:
+
+				# sort it so strongest is first.
+				em_list = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
+
+				# create a list to hold just the info we need for the screen.
+				items_list = []
+				strength_list = []
+
+				for ssid in em_list:
+					strength = ssid[1]
+					strength_list.append(strength)
+					list_min = min(strength_list)
+					list_max = max(strength_list)
+
+				#filter info for each entry into items_list as its own list of data
+				for ssid in em_list:
+					name = str(ssid[0])
+					strength = ssid[1]
+					frequency = ssid[3]
+					#frequency = float(frequency.replace(' GHz', ''))
+
+					# determing x coordinate
+					screenpos = numpy.interp(frequency,(2.412, 2.462),(self.vizX1, self.vizX2))
+
+					# determine y coordinate
+					lineheight = numpy.interp(strength, (list_min, list_max), (self.vizY2, self.vizY1))
+
+					# package into list
+					this_ssid = (name,screenpos,lineheight,strength,frequency)
+					items_list.append(this_ssid)
+					
+
+
+				# draw lines and indicator
+				#for each item in item_list, in reverse order
+				for index, item in reversed(list(enumerate(items_list))):
+
+
+					# if this is the strongest signal draw labels and change colour.
+					if index == 0:
+
+						stdscr.addstr(item[2],item[1],"O")
+						self.line_draw(item[1],item[2],self.vizY2)
+						# draw.ellipse([x1,y1,x2,y2],lcars_peach)
+						# draw.line(cords,lcars_peach,1)
+
+						# grab the name string
+						name = item[0]
+
+						#truncate the name to 16 chars
+						trunc_name = name[:16] + (name[16:] and '..')
+
+						focus_freq = item[4]
+
+
+						# draw the strongest signals name
+						self.signal_name_sm.push(20,80,draw,string = trunc_name)
+
+						# put strength at lower left
+						strength_string = str(item[3]) + " DB"
+						#self.signal_strength_sm.push(19,114,draw,string = strength_string)
+
+						# put frequency at lower right
+						self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
+						self.signal_frequency_sm.r_align(155,82,draw)
+
+
+					# otherwise just draw the line and dot in the usual color
+					else:
+						stdscr.addstr(item[2],item[1],"o")
+						self.line_draw(item[1],item[2],self.vizY2)
+
+
+			label_list = []
+
+			for item in items_list:
+				if item[4] == focus_freq:
+					overlapping.append(item)
+
+
+			if len(overlapping) > 1:
+				del overlapping[0]
+				for ssid in overlapping:
+					name = ssid[0]
+					strength = ssid[1]
+					frequency = ssid[4]
+
+					# package into list
+					this_ssid = (name,strength)
+					label_list.append(this_ssid)
+			else:
+				thislist = sorted(unsorted_em_list, key=itemgetter(1), reverse = True)
+				del thislist[0]
+				for ssid in thislist:
+					name = ssid[0]
+					strength = ssid[1]
+					frequency = ssid[4]
+
+					# package into list
+					this_ssid = (name,strength)
+					label_list.append(this_ssid)
 
 	def display(self):
 

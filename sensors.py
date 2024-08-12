@@ -469,18 +469,20 @@ def threaded_sensor():
 		while True:
 			
 	
-
-			#self.bt.update_plars()
 			item = parent_conn.recv()
+			
 			if item is not None:
+
+
 				data, thermal = item
 				plars.update(data)
 				plars.update_thermal(thermal)
+
+				#sets current position
 				configure.position = [data[0].get()[7],data[0].get()[8]]
 			else:
 				break
 
-		#grab wifi and BT data
 
 
 	sense_process.terminate()

@@ -147,6 +147,8 @@ class preferences(object):
 							'samplerate':'.2',
 							'# EM/BT Polling/Sampling Rate':None,
 							'em_samplerate':'5',
+							'# Input Sample Rate (how often inputs are registered)':None,
+							'input_samplerate':'0',
 							'# Affects graphing density':None,
 							'samples':'64',
 							'# Currently not used':None,
@@ -387,6 +389,7 @@ class preferences(object):
 		# used to control refresh rate of sensor queries
 		self.samplerate = [float(config['GLOBALS']['samplerate'])]
 		self.em_samplerate = float(config['GLOBALS']['em_samplerate'])
+		self.input_rate  = float(config['GLOBALS']['input_samplerate'])
 
 		self.displayinterval=[float(config['GLOBALS']['displayinterval'])]
 
