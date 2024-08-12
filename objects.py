@@ -389,7 +389,7 @@ class preferences(object):
 		# used to control refresh rate of sensor queries
 		self.samplerate = [float(config['GLOBALS']['samplerate'])]
 		self.em_samplerate = float(config['GLOBALS']['em_samplerate'])
-		self.input_rate  = float(config['GLOBALS']['input_samplerate'])
+		self.input_samplerate  = float(config['GLOBALS']['input_samplerate'])
 
 		self.displayinterval=[float(config['GLOBALS']['displayinterval'])]
 
@@ -540,7 +540,7 @@ class Events(object):
 					elif isinstance(self.but_map[index], int):
 						payload = self.but_map[index]
 					
-						
+
 		else:
 			payload = 0
 		return status,payload
