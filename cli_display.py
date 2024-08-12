@@ -516,8 +516,8 @@ class EM_Frame(object):
 		# assign x coordinates for frequency map
 		self.vizX1 = 0
 		self.vizY1 = 36
-		self.vizX2 = cols
-		self.vizY2 = rows
+		self.vizX2 = cols-1
+		self.vizY2 = rows-1
 		self.vizW = self.vizX2 - self.vizX1 
 		self.vizH = self.vizY2 - self.vizY1
 
@@ -585,11 +585,10 @@ class EM_Frame(object):
 		# determined by frequency. Its height by its signal strength.
 
 			focus_freq = 0
-			overlapping = []
 
 			#grab EM list
 			unsorted_em_list = plars.get_recent_em_list()
-			noossids = len(unsorted_em_list)
+
 
 
 			if len(unsorted_em_list) > 0:
@@ -647,17 +646,12 @@ class EM_Frame(object):
 
 						focus_freq = item[4]
 
-
-						# draw the strongest signals name
-						self.signal_name_sm.push(20,80,draw,string = trunc_name)
-
 						# put strength at lower left
 						strength_string = str(item[3]) + " DB"
 						#self.signal_strength_sm.push(19,114,draw,string = strength_string)
 
 						# put frequency at lower right
 						self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
-						self.signal_frequency_sm.r_align(155,82,draw)
 
 
 					# otherwise just draw the line and dot in the usual color
@@ -670,8 +664,8 @@ class EM_Frame(object):
 		# returns mode to the main loop unless something causes state change
 		status,payload  = self.events.check()
 
-		self.em_statistics()
-		self.em_scan()
+		#self.em_statistics()
+		#self.em_scan()
 		self.frequency_map()
 		return status
 
