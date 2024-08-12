@@ -672,6 +672,7 @@ class EM_Frame(object):
 
 		self.em_statistics()
 		self.em_scan()
+		self.frequency_map()
 		return status
 
 # function to shut down CLI if needed from outside this loop.
