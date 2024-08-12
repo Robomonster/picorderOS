@@ -650,9 +650,7 @@ class EM_Frame(object):
 						strength_string = str(item[3]) + " DB"
 						#self.signal_strength_sm.push(19,114,draw,string = strength_string)
 
-						# put frequency at lower right
-						self.signal_frequency_sm.string = str(focus_freq) + " GHZ" + ", " + strength_string
-
+					
 
 					# otherwise just draw the line and dot in the usual color
 					else:
