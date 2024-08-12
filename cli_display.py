@@ -526,7 +526,7 @@ class EM_Frame(object):
 
 
 	def line_draw(self, x, y1, y2):
-		for char in range(y1,y2)
+		for char in range(y1,y2):
 			stdscr.addstr(char,x,"|")
 
 	# Draws a list of APs with data.
