@@ -634,7 +634,7 @@ class EM_Frame(object):
 					if index == 0:
 
 						stdscr.addstr(item[2],item[1],"O")
-						self.line_draw(item[1],item[2],self.vizY2)
+						self.line_draw(item[2],item[1],self.vizY2)
 						# draw.ellipse([x1,y1,x2,y2],lcars_peach)
 						# draw.line(cords,lcars_peach,1)
 
@@ -655,7 +655,7 @@ class EM_Frame(object):
 					# otherwise just draw the line and dot in the usual color
 					else:
 						stdscr.addstr(item[2],item[1],"o")
-						self.line_draw(item[1],item[2],self.vizY2)
+						self.line_draw(item[2],item[1],self.vizY2)
 
 	def display(self):
 
