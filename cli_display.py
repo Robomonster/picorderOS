@@ -516,7 +516,7 @@ class EM_Frame(object):
 		# assign x coordinates for frequency map
 		self.vizX1 = 20
 		self.vizY1 = 36
-		self.vizX2 = 157
+		self.vizX2 = 130
 		self.vizY2 = 77
 		self.vizW = self.vizX2 - self.vizX1 
 		self.vizH = self.vizY2 - self.vizY1
