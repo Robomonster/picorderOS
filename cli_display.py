@@ -615,10 +615,10 @@ class EM_Frame(object):
 					#frequency = float(frequency.replace(' GHz', ''))
 
 					# determing x coordinate
-					screenpos = numpy.interp(frequency,(2.412, 2.462),(self.vizX1, self.vizX2))
+					screenpos = int(numpy.interp(frequency,(2.412, 2.462),(self.vizX1, self.vizX2)))
 
 					# determine y coordinate
-					lineheight = numpy.interp(strength, (list_min, list_max), (self.vizY2, self.vizY1))
+					lineheight = int(numpy.interp(strength, (list_min, list_max), (self.vizY2, self.vizY1)))
 
 					# package into list
 					this_ssid = (name,screenpos,lineheight,strength,frequency)
