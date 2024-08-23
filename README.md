@@ -1,3 +1,8 @@
+# NOTE:
+This repository is undergoing changes and may not be functional at this time.
+
+<hr>
+
 <p align="center">
   <img width="203" height="273" src="https://raw.githubusercontent.com/directive0/picorderOS/master/assets/Picorder_Logo.png?raw=true">
 </p>
