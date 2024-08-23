@@ -23,7 +23,8 @@ print("Loading Unified Input Module")
 
 import time
 import os
-from objects import *
+from objects import configure, Timer, Events, translate
+import pygame
 
 
 # stores the number of buttons to be queried
@@ -118,12 +119,12 @@ if configure.input_pcf8575:
     button_table = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,0,3,2,4]
 
 # the input class receives and relays control events for user interaction
-class Inputs(object):
+class Inputs:
 
     def __init__(self):
 
         self.calibrate_timeout = 30
-        self.timed = timer()
+        self.timed = Timer()
         # lists for hold behaviour tracking
         self.holding = []
         self.holdtimers = []
@@ -148,7 +149,7 @@ class Inputs(object):
             self.holding.append(False)
             self.clear.append(False)
 
-            thistimer = timer()
+            thistimer = Timer()
             self.holdtimers.append(thistimer)
 
         configure.eventlist[0] = self.clear
@@ -423,21 +424,18 @@ class Inputs(object):
         return key
 
 def threaded_input():
-
-
-    timed = timer()
+    timed = Timer()
     input = Inputs()
-    timeit = timer()
+    timeit = Timer()
 
     while not configure.status[0] == "quit":
-
         if timed.timelapsed() > configure.input_samplerate:
             input.read()
             timed.logtime()
 
 def input_tester():
     inputs = Inputs()
-    timed = timer()
+    timed = Timer()
     timed.logtime()
     # clear the event flag.
     configure.eventready[0] = False

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # This module controls the st7735 type screens
 print("Loading 160x128 LCARS Interface")
-from objects import *
+from objects import configure, Timer, Events, translate
 import math
 import time
 import socket
@@ -21,9 +21,9 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 # load the module that draws graphs
-from pilgraph import *
+from pilgraph import GraphArea, graph_prep_process
 from amg8833_pil import *
-from plars import *
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
 
 
 
@@ -54,7 +54,7 @@ back_col = 1
 
 
 
-class DrawGrid(object):
+class DrawGrid:
     def __init__(self,x,y,w,h,colour,segx = 4, segy = 4):
         self.x = x
         self.y = y
@@ -125,7 +125,7 @@ class DrawGrid(object):
             draw.line(self.vcoordlist[i],self.colour,1)
 
 
-class Dialogue(object):
+class Dialogue:
 
     def __init__(self):
 
@@ -179,7 +179,7 @@ class Dialogue(object):
         pass
 
 # Controls text objects drawn to the LCD
-class LabelObj(object):
+class LabelObj:
     def __init__(self,string, font, colour = lcars_blue):
         self.font = font
         #self.draw = draw
@@ -217,7 +217,7 @@ class LabelObj(object):
 # a class to create a simple text list.
 # initialize with x/y coordinates
 # on update provide list of items to display, and draw object to draw to.
-class Label_List(object):
+class Label_List:
 
     def __init__(self, x, y, colour = lcars_orpeach, ofont = font):
 
@@ -349,7 +349,7 @@ class SelectableLabel(LabelObj):
         surface.blit(state, (pos, self.y))
 
 # serves as a screen to show the current status of the picorder
-class MasterSystemsDisplay(object):
+class MasterSystemsDisplay:
 
     def __init__(self):
         self.title = None
@@ -415,7 +415,7 @@ class MasterSystemsDisplay(object):
 
         return status
 
-class PowerMenu(object):
+class PowerMenu:
     
     def __init__(self):
 
@@ -533,7 +533,7 @@ class PowerMenu(object):
 
         return status
 
-class SettingsFrame(object):
+class SettingsFrame:
     def __init__(self):
 
         # pages are a description string and an item to change. 
@@ -657,7 +657,7 @@ class SettingsFrame(object):
         return status
 
 # a simple frame that tells the user that the picorder is loading another screen.
-class LoadingFrame(object):
+class LoadingFrame:
 
     captions = ["working", "accessing", "initializing", "computing", "calculating"]
 
@@ -675,7 +675,7 @@ class LoadingFrame(object):
 
         return status
 
-class StartUp(object):
+class StartUp:
     def __init__(self):
         self.titlex = 0
         self.titley = 77
@@ -714,7 +714,7 @@ class StartUp(object):
 
         return status
 
-class PowerDown(object):
+class PowerDown:
     def __init__(self):
 
         self.selection = 0
@@ -763,7 +763,7 @@ class PowerDown(object):
 
         return status
 
-class EMFrame(object):
+class EMFrame:
     def __init__(self):
 
         self.graphcycle = 0
@@ -789,7 +789,7 @@ class EMFrame(object):
         
 
         # create our graph_screen
-        self.Signal_Graph = graph_area(0,(self.graphx+1,self.graphy+1),(self.gspanx-3,self.gspany-3),self.graphcycle, lcars_pink, width = 1, type = 1, samples = 45)
+        self.Signal_Graph = GraphArea(0,(self.graphx+1,self.graphy+1),(self.gspanx-3,self.gspany-3),self.graphcycle, lcars_pink, width = 1, type = 1, samples = 45)
         self.Signal_Grid = DrawGrid(self.graphx,self.graphy,self.gspanx,self.gspany,lcars_grid)
 
         self.title = LabelObj("Modulated EM Scan",titlefont, colour = lcars_orange)
@@ -1120,7 +1120,7 @@ class EMFrame(object):
 
 
 # Controls the LCARS frame, measures the label and makes sure the top frame bar has the right spacing.
-class MultiFrame(object):
+class MultiFrame:
 
     def __init__(self):
 
@@ -1164,11 +1164,11 @@ class MultiFrame(object):
         self.divider = 47
 
         # create our graph_screen
-        self.A_Graph = graph_area(0,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[0], width = 1)
+        self.A_Graph = GraphArea(0,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[0], width = 1)
 
-        self.B_Graph = graph_area(1,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[1], width = 1)
+        self.B_Graph = GraphArea(1,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[1], width = 1)
 
-        self.C_Graph = graph_area(2,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[2], width = 1)
+        self.C_Graph = GraphArea(2,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[2], width = 1)
 
         self.Graphs = [self.A_Graph, self.B_Graph, self.C_Graph]
 
@@ -1361,7 +1361,7 @@ class MultiFrame(object):
 
         return status
 
-class ThermalFrame(object):
+class ThermalFrame:
     def __init__(self):
         # Sets the topleft origin of the graph
         self.graphx = 23
@@ -1484,7 +1484,7 @@ class ThermalFrame(object):
 
         return status
 
-class ColourScreen(object):
+class ColourScreen:
 
     def __init__(self):
 

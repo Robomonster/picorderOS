@@ -11,28 +11,29 @@ import os
 import sys
 from threading import Thread
 
-
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
 
-from objects import *
-from sensors import *
-from plars import *
-from input import *
+from objects import configure, Timer, Events, translate
+from sensors import Fragment, Sensor, MLX90614, sensor_process, wifitimer, threaded_sensor
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from input import Inputs, threaded_input, input_tester
+import time
+
 
 if configure.audio[0]:
-    from audio import *
+    import audio
 
 # This part loads the appropriate modules depending on which preference flags are set.
 
 # load up the LED indicator module
 if configure.leds[0]:
-    from leds import *
+    import leds
 
 
 # The following are only loaded in TR-108 mode
 if configure.tr108:
     # Load the TR-108 display modules
-    from tos_display import *
+    import tos_display
 
 
 # for the TR-109 there are two display modes supported.
@@ -40,14 +41,14 @@ if configure.tr109:
 
     # 1.8" TFT colour LCD
     if configure.display == 1 or configure.display == 2:
-        from lcars_clr import *
+        import lcars_clr
 
     # Nokia 5110 black and white dot matrix screen.
     if configure.display == 0:
-        from lcars_bw import *
+        import lcars_bw
 
 if configure.CLI:
-    from cli_display import *
+    import cli_display
 
 
 
@@ -58,35 +59,35 @@ def Main():
     # they all have different names but each display object should use the same
     # named methods for simplicity sake.
     if configure.tr108:
-        screen_object = Screen()
+        screen_object = tos_display.Screen()
         configure.graph_size[0] = screen_object.get_size()
 
     if configure.tr109:
         if configure.display == 0:
-            screen_object = NokiaScreen()
+            screen_object = lcars_bw.NokiaScreen()
         if configure.display == 1 or configure.display == 2:
-            screen_object = ColourScreen()
+            screen_object = lcars_clr.ColourScreen()
             screen_object.start_up()
 
         configure.graph_size[0] = screen_object.get_size()
 
     if configure.CLI:
-        screen_object = CLI_Display()
+        screen_object = cli_display.CLI_Display()
 
 
     start_time = time.time()
 
 
     # The following code sets up the various threads that the rest of the program will use
-    
-    #start the sensor loop
+
+    # start the sensor loop
     sensor_thread = Thread(target = threaded_sensor, args = ())
     sensor_thread.start()
 
 
     # if leds enabled start the event monitor for LEDs
     if configure.leds[0]:
-        led_thread = Thread(target = ripple_async, args = ())
+        led_thread = Thread(target = leds.ripple_async, args = ())
         led_thread.start()
 
 
@@ -94,7 +95,7 @@ def Main():
     input_thread = Thread(target = threaded_input, args = ())
     input_thread.start()
 
-    #start the audio service thread
+    # start the audio service thread
     if configure.audio[0]:
         audio_thread = Thread(target = threaded_tng_audio, args = ())
         audio_thread.start()
@@ -114,10 +115,10 @@ def Main():
                 configure.status[0] = "quit"
 
                 if configure.leds[0]:
-                    resetleds()
+                    leds.resetleds()
 
                 if configure.input_gpio:
-                    cleangpio()
+                    leds.cleangpio()
 
                 os.system("sudo shutdown -h now")
                 
@@ -131,23 +132,19 @@ def Main():
 
     # The following calls are for cleanup and just turn "off" any elements.
     if configure.leds[0]:
-        resetleds()
+        leds.resetleds()
+        led_thread.join()
 
     if configure.input_gpio:
-        cleangpio()
+        leds.cleangpio()
 
     if configure.CLI:
-        cli_reset()
-    
+        cli_display.cli_reset()
+
     if configure.audio[0]:
         audio_thread.join()
 
     sensor_thread.join()
-    led_thread.join()
     input_thread.join()
-    plars.shutdown()
+    plars_obj.shutdown()
     sys.exit()
-
-
-# the following call starts our program and begins the loop.
-Main()

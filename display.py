@@ -9,7 +9,7 @@ print("Unified Display Module loading")
 
 import sys
 import logging
-from objects import *
+from objects import configure, Timer, Events, translate
 from multiprocessing import Process,Queue,Pipe
 import signal
 
@@ -90,7 +90,7 @@ def DisplayFunction(q):
 # the main drawing program and the possible connected screen. A range of screens
 # and libraries can be used in this way with small modifications to the base
 # class.
-class GenericDisplay(object):
+class GenericDisplay:
 
     def __init__(self):
         self.q = Queue()

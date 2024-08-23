@@ -13,15 +13,16 @@ print("Loading Python IL Module")
 
 
 
-from objects import *
+from objects import configure, Timer, Events, translate
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
 import numpy
 from array import *
-from plars import *
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
 from multiprocessing import Process,Queue,Pipe
+
 
 # function to calculate onscreen coordinates of graph pixels as a process.
 def graph_prep_process(conn,samples,datalist,auto,newrange,targetrange,sourcerange,linepoint,jump,sourcelow):
@@ -60,7 +61,7 @@ def graph_prep_process(conn,samples,datalist,auto,newrange,targetrange,sourceran
     conn.put(newlist)
 
 
-class graph_area(object):
+class GraphArea:
 # it is initialized with:
 # - ident: a graph identifier number so it knows which currently selected graphable sensor (0-2) this graph is
 # - graphcoords: list containing the top left x,y coordinates
@@ -94,7 +95,7 @@ class graph_area(object):
         self.buff = array('f', [])
         self.type = type
 
-        self.timeit = timer()
+        self.timeit = Timer()
 
         self.datahigh = 0
         self.datalow = 0
@@ -236,7 +237,7 @@ class graph_area(object):
         if self.type == 0:
             index = configure.sensors[self.ident][0]
             dsc,dev,sym,maxi,mini = configure.sensor_info[index]
-            recent, self.timelength = plars.get_recent(dsc,dev,num = self.samples, time = True)
+            recent, self.timelength = plars_obj.get_recent(dsc,dev,num = self.samples, time = True)
 
 
             # for returning last value on multigraph
@@ -247,12 +248,12 @@ class graph_area(object):
 
         # EM pilgraph: pulls wifi data only.
         elif self.type == 1:
-            recent = plars.get_top_em_history(no = self.samples)
+            recent = plars_obj.get_top_em_history(no = self.samples)
             return_value = recent[-1]
 
         # Testing a new graph
         elif self.type == 2:
-            recent = plars.get_recent(dsc,dev,num = self.samples)
+            recent = plars_obj.get_recent(dsc,dev,num = self.samples)
 
 
 

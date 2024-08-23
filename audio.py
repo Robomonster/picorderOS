@@ -1,4 +1,4 @@
-from objects import *
+from objects import configure, Timer, Events, translate
 import simpleaudio as sa
 print("Loading Audio Thread")
 

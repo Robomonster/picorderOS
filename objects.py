@@ -6,8 +6,258 @@ import time, configparser
 from os.path import exists
 
 
+class Preferences:
+    def __init__(self):
+        """Initializes the parameters for the program."""
+        
+        print("Loading Global Objects")
+        if not exists("config.ini"):
+            self.createMissingINI('config.ini')
 
-class preferences(object):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+
+        # Sets the variables for boot up
+        self.version = config['SYSTEM']['version']
+        self.boot_message = config['SYSTEM']['boot_message']
+
+        self.boot_delay = int(config['SYSTEM']['boot_delay'])
+
+        # enables "PC Mode": sensors and GPIO calls are disabled.
+        # Machine vitals are substituted and Luma screens use emulator
+        self.pc = self.str2bool(config['SYSTEM']['pc'])
+
+        # These two bits determine the target device (Original picorder or new version)
+        # If both true the screens will fight for control!
+        self.tr108 = self.str2bool(config['SYSTEM']['tr108'])
+        self.tr109 = self.str2bool(config['SYSTEM']['tr109'])
+        self.CLI = self.str2bool(config['SYSTEM']['CLI'])
+
+        # SENSORS----------------------------------------------------------------------#
+
+        # TR108 uses this sensehat
+        self.sensehat = self.str2bool(config['SENSORS']['sensehat'])
+
+        # Toggles individual sensor support
+        self.system_vitals = self.str2bool(config['SENSORS']['system_vitals'])
+        self.bme = self.str2bool(config['SENSORS']['bme'])
+        self.amg8833 = self.str2bool(config['SENSORS']['amg8833'])
+
+        # Experimental sensors
+        self.pocket_geiger = self.str2bool(config['SENSORS']['pocket_geiger'])
+        self.ir_thermo = self.str2bool(config['SENSORS']['ir_thermo'])
+        self.envirophat = self.str2bool(config['SENSORS']['envirophat'])
+
+        # Toggles wifi/bt scanning
+        self.EM = self.str2bool(config['SENSORS']['EM'])
+
+        self.tinyups = self.str2bool(config['SENSORS']['tinyups'])
+
+        # Toggles position data from USB Serial GPS module
+        self.gps = self.str2bool(config['SENSORS']['gps'])
+
+
+        # INPUT MODULE-----------------------------------------------------------------#
+
+        # testing this setting to switch between Pygame controls and gpio ones
+        self.input_kb = self.str2bool(config['INPUT']['kb']) # also enables Sensehat joystick if present
+        self.input_gpio = self.str2bool(config['INPUT']['gpio'])
+        self.input_cap_mpr121 = self.str2bool(config['INPUT']['cap_mpr121'])
+        self.input_pcf8575 = self.str2bool(config['INPUT']['pcf8575'])
+        self.input_joystick = self.str2bool(config['INPUT']['sensehat_joystick'])
+        self.manual_input = self.str2bool(config['INPUT']['manual_input'])
+        self.button_map = self.str2bool(config['INPUT']['button_map'])
+
+        # CAP1208 and sensitivity settings
+        self.input_cap1208 = self.str2bool(config['INPUT']['cap1208'])
+        self.CAPSENSITIVITY = int(config['INPUT']['capsensitivity'])
+
+
+        # PIN ASSIGNMENTS--------------------------------------------------------------#]
+
+        # GPIO Pin Assignments (BCM)
+
+        # i2c Pins
+        self.PIN_SDA = int(config['PIN ASSIGNMENTS']['pin_sda'])
+        self.PIN_SCL = int(config['PIN ASSIGNMENTS']['pin_scl'])
+  
+        # Basic 3 GPIO pins (for tr108, beepcorder, anything with basic gpio)
+        self.PIN_IN0  = int(config['PIN ASSIGNMENTS']['pin_in0'])
+        self.PIN_IN1  = int(config['PIN ASSIGNMENTS']['pin_in1'])
+        self.PIN_IN2  = int(config['PIN ASSIGNMENTS']['pin_in2'])
+
+        # Basic 3 LED pins (for tr108 or anything with basic gpio)
+        self.PIN_LED0  = int(config['PIN ASSIGNMENTS']['pin_led0'])
+        self.PIN_LED1  = int(config['PIN ASSIGNMENTS']['pin_led1'])
+        self.PIN_LED2  = int(config['PIN ASSIGNMENTS']['pin_led2'])
+
+        # the tr109 supports two shift registers, and so two sets of pin addresses
+        # prototype unit 00 and 01 have different pin assignments for latch and clock
+        # so these values may need to be swapped
+  
+        # Main board shift register pins
+        self.PIN_DATA  = int(config['PIN ASSIGNMENTS']['pin_data'])
+        self.PIN_LATCH = int(config['PIN ASSIGNMENTS']['pin_latch'])
+        self.PIN_CLOCK = int(config['PIN ASSIGNMENTS']['pin_clock'])
+
+        # Sensor board shift register pins
+        self.PIN_DATA2 = int(config['PIN ASSIGNMENTS']['pin_data2'])
+        self.PIN_LATCH2 = int(config['PIN ASSIGNMENTS']['pin_latch2'])
+        self.PIN_CLOCK2 = int(config['PIN ASSIGNMENTS']['pin_clock2'])
+
+
+        # Hall effect sensors pins, for door open/close.
+        self.HALLPIN1 = int(config['PIN ASSIGNMENTS']['hallpin1'])
+        self.HALLPIN2 = int(config['PIN ASSIGNMENTS']['hallpin2'])
+
+        # CAP1208 alert pin
+        self.ALERTPIN = int(config['PIN ASSIGNMENTS']['alertpin'])
+
+        # CAP1208 alert pin
+        self.LOW_POWER_PIN = int(config['PIN ASSIGNMENTS']['LOW_POWER_PIN'])
+
+        # PocketGeiger Pins
+        self.PG_SIG = int(config['PIN ASSIGNMENTS']['pg_sig'])
+        self.PG_NS = int(config['PIN ASSIGNMENTS']['pg_ns'])
+
+
+        # OUTPUT SETTINGS--------------------------------------------------------------#
+
+        # chooses SPI display (0 for nokia 5110, 1 for st7735)
+        self.display = int(config['OUTPUT']['display'])
+
+        # led refresh rate.
+        self.LED_TIMER = float(config['OUTPUT']['led_timer'])
+
+        # GLOBAL VARIABLES-------------------------------------------------------------#
+
+        # Controls for global event list
+        self.eventlist = [[]]
+        self.eventready = [False]
+
+        # contains the current button state (0 is unpressed, 1 is pressed)
+        self.events = [0,0,0,0,0,0,0,0]
+
+        # holds state for beep input feedback
+        self.beep_ready = [False]
+        self.alarm_ready = [False]
+
+
+        # flags control the onboard LEDS. Easy to turn them off if need be.
+        self.leds = [self.str2bool(config['GLOBALS']['leds'])] # was True
+
+        # global variable to enable/disable lights at will.
+        self.leds_on = [True]
+
+        # controls Moire pattern on tr-108
+        self.moire = [self.str2bool(config['GLOBALS']['moire'])] # was True
+
+        # enables sound effect playback
+        self.audio = [self.str2bool(config['GLOBALS']['audio'])]
+
+        # enables or disables the warble sound effect specifically 
+        # ('cause beeps and clicks are less obnoxious).
+        self.warble = [self.str2bool(config['GLOBALS']['warble'])]
+
+        # enables video playback library
+        self.video = [self.str2bool(config['GLOBALS']['video'])]
+
+        # turns alarms on/off
+        self.alarm = [self.str2bool(config['GLOBALS']['alarm'])]
+
+        # turns battery monitor on and off, used to shut down the battery monitor
+        self.power = self.str2bool(config['GLOBALS']['power_monitor'])
+        self.low_power_flag = [False]
+
+        # If sleep is True the lights and input will respond to the door open/close hall effect sensors
+        self.sleep = [self.str2bool(config['GLOBALS']['sleep'])]
+
+        # controls auto ranging of graphs
+        self.auto = [self.str2bool(config['GLOBALS']['autoranging'])]
+
+        # controls sizes and offsets for mode_a on TR108
+        self.mode_a_graph_width = int(config['GLOBALS']['mode_a_graph_width'])
+        self.mode_a_graph_height = int(config['GLOBALS']['mode_a_graph_height'])
+        self.mode_a_x_offset = int(config['GLOBALS']['mode_a_x_offset'])
+        self.mode_a_y_offset = int(config['GLOBALS']['mode_a_y_offset'])
+
+        # holds theme state for UI
+        self.theme = [0]
+
+        # sets the number of max sensors for user configuration
+        # (is automatically set by the sensor module at startup)
+        self.max_sensors = [0]
+
+        # sets the upper and lower threshold for the alert
+        self.TEMP_ALERT = (int(config['SENSORS']['alert_low']),int(config['SENSORS']['alert_high']))
+
+        # toggles interpolation for thermal camera
+        self.interpolate = [True]
+
+        # flag to command the main loop
+        self.sensor_ready = [False]
+        self.screen_halt = [False]
+        self.sensor_halt = [False]
+
+        # An integer determines which sensor in the dataset to plot
+        self.sensor1 = [0]
+        self.sensor2 = [1]
+        self.sensor3 = [2]
+        self.sensors = [self.sensor1, self.sensor2, self.sensor3]
+
+        # sets data logging mode.
+        self.datalog = [self.str2bool(config['GLOBALS']['datalog'])]
+
+        # toggles buffer trimming
+        self.trim_buffer = [self.str2bool(config['GLOBALS']['trim_buffer'])]
+
+        # Max buffer size allowed (usually defined by display module constraints, if 0 display will set otherwise it will apply user config)
+        # If the display module does not support setting make sure to set this to non zero or else no data will be graphed
+        self.buffer_size = [int(config['GLOBALS']['buffer_size'])]
+
+        # Sets the size of the graph. Not supported by all display modules.
+        self.graph_size = [int(config['GLOBALS']['graph_size'])]
+        self.logtime = [60]
+        self.recall = [False]
+
+        # used to control refresh speed.
+        self.samples = int(config['GLOBALS']['samples'])
+
+        # used to control refresh rate of sensor queries
+        self.samplerate = [float(config['GLOBALS']['samplerate'])]
+        self.em_samplerate = float(config['GLOBALS']['em_samplerate'])
+        self.input_samplerate  = float(config['GLOBALS']['input_samplerate'])
+
+        self.displayinterval=[float(config['GLOBALS']['displayinterval'])]
+
+        # holds sensor data (issued by the sensor module at init)
+        self.sensor_info = []
+
+        # holds the global state of the program (allows secondary modules to quit the program should we require it)
+        self.status = ["startup"]
+        self.last_status = ["startup"]
+
+        # Planned feature; If raised immidiately halt, backup all data, transmit data if possible, shutdown.
+        self.emrg = [False]
+
+        # Enables/disables door detection
+        self.dr = [self.str2bool(config['GLOBALS']['doordetection'])]
+
+        # holds the physical status of the devices
+        self.dr_open = [False]
+        self.dr_closed = [False]
+        self.dr_opening = [False]
+        self.dr_closing = [False]
+
+        # Settings for mode_a Graph_Screen for TR108
+        self.graph_width = int(config['GLOBALS']['graph_width'])
+        self.graph_height = int(config['GLOBALS']['graph_height'])
+        self.graph_x = int(config['GLOBALS']['graph_x'])
+        self.graph_y = int(config['GLOBALS']['graph_y'])
+
+        # Global holder for current position (lat,lon) as provided by GPS/etc. 
+        self.position = [47,47]
+        
     def str2bool(self,v):
           return v.lower() in ("yes", "true", "t", "1")
 
@@ -171,262 +421,13 @@ class preferences(object):
             config.write(configfile)
             print("New INI file is ready.")
 
-    # Initializes the parameters for the program.
-    def __init__(self):
-        print("Loading Global Objects")
-        if not exists("config.ini"):
-            self.createMissingINI('config.ini')
-
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-
-        # Sets the variables for boot up
-        self.version = config['SYSTEM']['version']
-        self.boot_message = config['SYSTEM']['boot_message']
-
-        self.boot_delay = int(config['SYSTEM']['boot_delay'])
-
-        # enables "PC Mode": sensors and GPIO calls are disabled.
-        # Machine vitals are substituted and Luma screens use emulator
-        self.pc = self.str2bool(config['SYSTEM']['pc'])
-
-        # These two bits determine the target device (Original picorder or new version)
-        # If both true the screens will fight for control!
-        self.tr108 = self.str2bool(config['SYSTEM']['tr108'])
-        self.tr109 = self.str2bool(config['SYSTEM']['tr109'])
-        self.CLI = self.str2bool(config['SYSTEM']['CLI'])
-
-# SENSORS----------------------------------------------------------------------#
-
-        # TR108 uses this sensehat
-        self.sensehat = self.str2bool(config['SENSORS']['sensehat'])
-
-        # Toggles individual sensor support
-        self.system_vitals = self.str2bool(config['SENSORS']['system_vitals'])
-        self.bme = self.str2bool(config['SENSORS']['bme'])
-        self.amg8833 = self.str2bool(config['SENSORS']['amg8833'])
-
-        # Experimental sensors
-        self.pocket_geiger = self.str2bool(config['SENSORS']['pocket_geiger'])
-        self.ir_thermo = self.str2bool(config['SENSORS']['ir_thermo'])
-        self.envirophat = self.str2bool(config['SENSORS']['envirophat'])
-
-        # Toggles wifi/bt scanning
-        self.EM = self.str2bool(config['SENSORS']['EM'])
-
-        self.tinyups = self.str2bool(config['SENSORS']['tinyups'])
-
-        # Toggles position data from USB Serial GPS module
-        self.gps = self.str2bool(config['SENSORS']['gps'])
-
-
-# INPUT MODULE-----------------------------------------------------------------#
-
-        # testing this setting to switch between Pygame controls and gpio ones
-        self.input_kb = self.str2bool(config['INPUT']['kb']) # also enables Sensehat joystick if present
-        self.input_gpio = self.str2bool(config['INPUT']['gpio'])
-        self.input_cap_mpr121 = self.str2bool(config['INPUT']['cap_mpr121'])
-        self.input_pcf8575 = self.str2bool(config['INPUT']['pcf8575'])
-        self.input_joystick = self.str2bool(config['INPUT']['sensehat_joystick'])
-        self.manual_input = self.str2bool(config['INPUT']['manual_input'])
-        self.button_map = self.str2bool(config['INPUT']['button_map'])
-
-        # CAP1208 and sensitivity settings
-        self.input_cap1208 = self.str2bool(config['INPUT']['cap1208'])
-        self.CAPSENSITIVITY = int(config['INPUT']['capsensitivity'])
-
-
-# PIN ASSIGNMENTS--------------------------------------------------------------#]
-
-        # GPIO Pin Assignments (BCM)
-
-        # i2c Pins
-        self.PIN_SDA = int(config['PIN ASSIGNMENTS']['pin_sda'])
-        self.PIN_SCL = int(config['PIN ASSIGNMENTS']['pin_scl'])
-  
-        # Basic 3 GPIO pins (for tr108, beepcorder, anything with basic gpio)
-        self.PIN_IN0  = int(config['PIN ASSIGNMENTS']['pin_in0'])
-        self.PIN_IN1  = int(config['PIN ASSIGNMENTS']['pin_in1'])
-        self.PIN_IN2  = int(config['PIN ASSIGNMENTS']['pin_in2'])
-
-        # Basic 3 LED pins (for tr108 or anything with basic gpio)
-        self.PIN_LED0  = int(config['PIN ASSIGNMENTS']['pin_led0'])
-        self.PIN_LED1  = int(config['PIN ASSIGNMENTS']['pin_led1'])
-        self.PIN_LED2  = int(config['PIN ASSIGNMENTS']['pin_led2'])
-
-        # the tr109 supports two shift registers, and so two sets of pin addresses
-        # prototype unit 00 and 01 have different pin assignments for latch and clock
-        # so these values may need to be swapped
-  
-        # Main board shift register pins
-        self.PIN_DATA  = int(config['PIN ASSIGNMENTS']['pin_data'])
-        self.PIN_LATCH = int(config['PIN ASSIGNMENTS']['pin_latch'])
-        self.PIN_CLOCK = int(config['PIN ASSIGNMENTS']['pin_clock'])
-
-        # Sensor board shift register pins
-        self.PIN_DATA2 = int(config['PIN ASSIGNMENTS']['pin_data2'])
-        self.PIN_LATCH2 = int(config['PIN ASSIGNMENTS']['pin_latch2'])
-        self.PIN_CLOCK2 = int(config['PIN ASSIGNMENTS']['pin_clock2'])
-
-
-        # Hall effect sensors pins, for door open/close.
-        self.HALLPIN1 = int(config['PIN ASSIGNMENTS']['hallpin1'])
-        self.HALLPIN2 = int(config['PIN ASSIGNMENTS']['hallpin2'])
-
-        # CAP1208 alert pin
-        self.ALERTPIN = int(config['PIN ASSIGNMENTS']['alertpin'])
-
-        # CAP1208 alert pin
-        self.LOW_POWER_PIN = int(config['PIN ASSIGNMENTS']['LOW_POWER_PIN'])
-
-        # PocketGeiger Pins
-        self.PG_SIG = int(config['PIN ASSIGNMENTS']['pg_sig'])
-        self.PG_NS = int(config['PIN ASSIGNMENTS']['pg_ns'])
-
-
-# OUTPUT SETTINGS--------------------------------------------------------------#
-
-        # chooses SPI display (0 for nokia 5110, 1 for st7735)
-        self.display = int(config['OUTPUT']['display'])
-
-        # led refresh rate.
-        self.LED_TIMER = float(config['OUTPUT']['led_timer'])
-
-# GLOBAL VARIABLES-------------------------------------------------------------#
-
-        # Controls for global event list
-        self.eventlist = [[]]
-        self.eventready = [False]
-
-        # contains the current button state (0 is unpressed, 1 is pressed)
-        self.events = [0,0,0,0,0,0,0,0]
-
-        # holds state for beep input feedback
-        self.beep_ready = [False]
-        self.alarm_ready = [False]
-
-
-        # flags control the onboard LEDS. Easy to turn them off if need be.
-        self.leds = [self.str2bool(config['GLOBALS']['leds'])] # was True
-
-        # global variable to enable/disable lights at will.
-        self.leds_on = [True]
-
-        # controls Moire pattern on tr-108
-        self.moire = [self.str2bool(config['GLOBALS']['moire'])] # was True
-
-        # enables sound effect playback
-        self.audio = [self.str2bool(config['GLOBALS']['audio'])]
-
-        # enables or disables the warble sound effect specifically 
-        # ('cause beeps and clicks are less obnoxious).
-        self.warble = [self.str2bool(config['GLOBALS']['warble'])]
-
-        # enables video playback library
-        self.video = [self.str2bool(config['GLOBALS']['video'])]
-
-        # turns alarms on/off
-        self.alarm = [self.str2bool(config['GLOBALS']['alarm'])]
-
-        # turns battery monitor on and off, used to shut down the battery monitor
-        self.power = self.str2bool(config['GLOBALS']['power_monitor'])
-        self.low_power_flag = [False]
-
-        # If sleep is True the lights and input will respond to the door open/close hall effect sensors
-        self.sleep = [self.str2bool(config['GLOBALS']['sleep'])]
-
-        # controls auto ranging of graphs
-        self.auto = [self.str2bool(config['GLOBALS']['autoranging'])]
-
-        # controls sizes and offsets for mode_a on TR108
-        self.mode_a_graph_width = int(config['GLOBALS']['mode_a_graph_width'])
-        self.mode_a_graph_height = int(config['GLOBALS']['mode_a_graph_height'])
-        self.mode_a_x_offset = int(config['GLOBALS']['mode_a_x_offset'])
-        self.mode_a_y_offset = int(config['GLOBALS']['mode_a_y_offset'])
-
-        # holds theme state for UI
-        self.theme = [0]
-
-        # sets the number of max sensors for user configuration
-        # (is automatically set by the sensor module at startup)
-        self.max_sensors = [0]
-
-        # sets the upper and lower threshold for the alert
-        self.TEMP_ALERT = (int(config['SENSORS']['alert_low']),int(config['SENSORS']['alert_high']))
-
-        # toggles interpolation for thermal camera
-        self.interpolate = [True]
-
-        # flag to command the main loop
-        self.sensor_ready = [False]
-        self.screen_halt = [False]
-        self.sensor_halt = [False]
-
-        # An integer determines which sensor in the dataset to plot
-        self.sensor1 = [0]
-        self.sensor2 = [1]
-        self.sensor3 = [2]
-        self.sensors = [self.sensor1, self.sensor2, self.sensor3]
-
-        # sets data logging mode.
-        self.datalog = [self.str2bool(config['GLOBALS']['datalog'])]
-
-        # toggles buffer trimming
-        self.trim_buffer = [self.str2bool(config['GLOBALS']['trim_buffer'])]
-
-        # Max buffer size allowed (usually defined by display module constraints, if 0 display will set otherwise it will apply user config)
-        # If the display module does not support setting make sure to set this to non zero or else no data will be graphed
-        self.buffer_size = [int(config['GLOBALS']['buffer_size'])]
-
-        # Sets the size of the graph. Not supported by all display modules.
-        self.graph_size = [int(config['GLOBALS']['graph_size'])]
-        self.logtime = [60]
-        self.recall = [False]
-
-        # used to control refresh speed.
-        self.samples = int(config['GLOBALS']['samples'])
-
-        # used to control refresh rate of sensor queries
-        self.samplerate = [float(config['GLOBALS']['samplerate'])]
-        self.em_samplerate = float(config['GLOBALS']['em_samplerate'])
-        self.input_samplerate  = float(config['GLOBALS']['input_samplerate'])
-
-        self.displayinterval=[float(config['GLOBALS']['displayinterval'])]
-
-        # holds sensor data (issued by the sensor module at init)
-        self.sensor_info = []
-
-        # holds the global state of the program (allows secondary modules to quit the program should we require it)
-        self.status = ["startup"]
-        self.last_status = ["startup"]
-
-        # Planned feature; If raised immidiately halt, backup all data, transmit data if possible, shutdown.
-        self.emrg = [False]
-
-        # Enables/disables door detection
-        self.dr = [self.str2bool(config['GLOBALS']['doordetection'])]
-
-        # holds the physical status of the devices
-        self.dr_open = [False]
-        self.dr_closed = [False]
-        self.dr_opening = [False]
-        self.dr_closing = [False]
-
-        # Settings for mode_a Graph_Screen for TR108
-        self.graph_width = int(config['GLOBALS']['graph_width'])
-        self.graph_height = int(config['GLOBALS']['graph_height'])
-        self.graph_x = int(config['GLOBALS']['graph_x'])
-        self.graph_y = int(config['GLOBALS']['graph_y'])
-
-        # Global holder for current position (lat,lon) as provided by GPS/etc. 
-        self.position = [47,47]
-
 
 # create a shared object for global variables and settings.
-configure = preferences()
+configure = Preferences()
 
-# the following function maps a value from the target range onto the desination range
 def translate(value, leftMin, leftMax, rightMin, rightMax):
+    """The following function maps a value from the target range onto the desination range"""
+    
     # Figure out how 'wide' each range is
     leftSpan = leftMax - leftMin
     if leftSpan == 0:
@@ -439,9 +440,11 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
-# The following class is to handle interval timers.
-# its used to handle concurrent program flow, but also for diagnostic.
-class timer(object):
+class Timer:
+    """
+    The following class is to handle interval timers.
+    its used to handle concurrent program flow, but also for diagnostic.
+    """
 
     # Constructor code logs the time it was instantiated.
     def __init__(self):
@@ -477,7 +480,7 @@ class timer(object):
 
 # Class to control the flow of the program using inputs. Uses flags and input events to tell each module
 # how to behave.
-class Events(object):
+class Events:
 
     # at creation takes in a list of events to map the button layout to modules behaviours, and the base module
 

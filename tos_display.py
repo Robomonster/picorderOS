@@ -11,9 +11,9 @@ import pygame, time, os
 import socket
 
 from pathlib import Path
-from plars import *
-from objects import *
-from input import *
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from objects import configure, Timer, Events, translate
+from input import Inputs, threaded_input, input_tester
 from amg8833_pygame import *
 from operator import itemgetter
 
@@ -115,7 +115,7 @@ def butswitch():
                 configure.status[0] = "quit"
 
 # the following class defines simple text labels
-class Label(object):
+class Label:
 
     def __init__(self,content = "hello", fontSize = 30, x = 0, y = 0, color = white, font = titleFont):
         self.color = color
@@ -172,7 +172,7 @@ class Label(object):
 # a class to create a simple text list.
 # initialize with x/y coordinates
 # on update provide list of items to display, and draw object to draw to.
-class Label_List(object):
+class Label_List:
 
     def __init__(self, x = 0, y = 0, colour = white, font = titleFont, size = 15):
 
@@ -305,7 +305,7 @@ class SelectableLabel(Label):
         surface.blit(state, (pos, self.y))
 
 # the following class is used to display images
-class Image(object):
+class Image:
     def __init__(self):
         self.x = 258
         self.y = 66
@@ -321,7 +321,7 @@ class Image(object):
         surface.blit(self.Img, (self.x,self.y))
 
 # The following class is used to prepare sensordata for display on the graph.
-class graphlist(object):
+class graphlist:
 
     # the following is constructor code to give each object a list suitable for storing all our graph data, in this case it is 145 spaces.
     def __init__(self):
@@ -468,7 +468,7 @@ def about(surface):
 
     pygame.display.flip()
 
-class Settings_Panel(object):
+class Settings_Panel:
 
     def __init__(self,surface):
 
@@ -548,7 +548,7 @@ class Settings_Panel(object):
 
         return result
 
-class Master_Systems_Display(object):
+class Master_Systems_Display:
 
     def __init__(self, surface):
 
@@ -607,7 +607,7 @@ class Master_Systems_Display(object):
 
 # The graph screen object is a self contained screen that is fed the surface
 # and the sensor at the current moment and draws a frame when called.
-class Graph_Screen(object):
+class Graph_Screen:
 
     # Draws three graphs in a grid and three corresponding labels.
 
@@ -839,7 +839,7 @@ class Graph_Screen(object):
         self.visibility[item] = option
 
 # Video screen written by scifi.radio from the mycorder discord
-class Video_Playback(object):
+class Video_Playback:
     def __init__(self,surface):
         self.status = "video"
         self.surface = surface
@@ -905,7 +905,7 @@ class Video_Playback(object):
 
         return self.status
 
-class Slider_Screen(object):
+class Slider_Screen:
     def __init__(self, surface):
         # This function draws the main 3-slider interface, modelled after McCoy's tricorder in "Plato's Stepchildren". It displays temperature, humidity and pressure.
         self.surface = surface
@@ -997,7 +997,7 @@ class Slider_Screen(object):
         # draws UI to frame buffer
         return status
 
-class Wifi_Screen(object):
+class Wifi_Screen:
 
     def __init__(self, surface):
         self.surface = surface
@@ -1196,7 +1196,7 @@ class Wifi_Screen(object):
 # - shows the thermal output
 # - displays the high low and xbar of the field
 # - switches the display to full screen and back.
-class Thermal_Screen(object):
+class Thermal_Screen:
 
 
     def __init__(self,surface):
@@ -1292,7 +1292,7 @@ class Thermal_Screen(object):
         self.visibility[item] = option
 
 # A basic screen object. Is given parameters and displays them on a number of preset panels
-class Screen(object):
+class Screen:
 
     def __init__(self):
         screenSize = resolution

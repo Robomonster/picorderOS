@@ -1,20 +1,16 @@
 print("Loading Picorder Library Access and Retrieval System Module")
-from objects import *
+from objects import configure, Timer
 from multiprocessing import Process,Queue,Pipe
 
 
-import json
-
-#    PLARS (Picorder Library Access and Retrieval System) aims to provide a
-#    single surface for storing and retrieving data for display in any of the
-#    different Picorder screen modes.
+# PLARS (Picorder Library Access and Retrieval System) aims to provide a
+# single surface for storing and retrieving data for display in any of the
+# different Picorder screen modes.
 
 import os
-import numpy
 import datetime
 from array import *
 import pandas as pd
-import json
 
 import threading
 
@@ -92,7 +88,7 @@ def join_dataframes(buffer,newdata):
     
     return result
 
-class PLARS(object):
+class PLARS:
 
     def __init__(self):
 
@@ -158,7 +154,7 @@ class PLARS(object):
         # holds the thermal camera frame for display in other programs
         self.thermal_frame = []
 
-        self.timer = timer()
+        self.timer = Timer()
 
     def get_plars_size(self):
 
@@ -511,4 +507,4 @@ def plars_process(q_in, q_out):
 
 
 # Creates a plars database object as soon as it is loaded.
-plars = PLARS()
+plars_obj = PLARS()

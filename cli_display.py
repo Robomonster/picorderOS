@@ -9,8 +9,8 @@ import time
 
 from operator import itemgetter
 
-from plars import *
-from objects import *
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from objects import configure, Timer, Events, translate
 
 
 error = ""
@@ -68,7 +68,7 @@ map = """             @   .-
 
 
 
-class Start_Frame(object):
+class Start_Frame:
     def __init__(self):
         self.bootto = "multi"
         self.started = False
@@ -101,7 +101,7 @@ class Start_Frame(object):
 
         return "startup"
 # A pointless indicator widget to mimic the Alpha Beta Gamma Delta annunciators from the prop.
-class abgd(object):
+class abgd:
 
     def __init__(self,y,x):
         self.x = x
@@ -211,7 +211,7 @@ class PLARS_Graph():
 
 
 
-class graph(object):
+class graph:
 
     def __init__(self,y,x,w,h,setting):
         self.cursor = 0
@@ -311,7 +311,7 @@ class graph(object):
         for i in range(0, n - self.w):
             self.data_buffer.pop()
 
-class Multi_Frame(object):
+class Multi_Frame:
 
     def __init__(self):
 
@@ -339,7 +339,7 @@ class Multi_Frame(object):
 
         return status
     
-class Master_Systems_Display_Frame(object):
+class Master_Systems_Display_Frame:
     def __init__(self):
 
         self.events = Events(["multi",0,0],"msd")
@@ -406,7 +406,7 @@ class Master_Systems_Display_Frame(object):
 #        - List sensors on i2c?
 
 
-class Diagnostic_Frame(object):
+class Diagnostic_Frame:
     def __init__(self):
 
         self.timer = timer()
@@ -446,7 +446,7 @@ class Diagnostic_Frame(object):
 
         return status
 
-class Position_Frame(object):
+class Position_Frame:
     def __init__(self):
         self.last_position = [47,47]
         self.mapx = 1
@@ -490,7 +490,7 @@ class Position_Frame(object):
         
         return status
 
-class EM_Frame(object):
+class EM_Frame:
     def __init__(self):
 
         self.graphcycle = 0
@@ -673,7 +673,7 @@ def cli_reset(self):
     stdscr.keypad(False)
     curses.echo()
 
-class CLI_Display(object):
+class CLI_Display:
 
     def __init__(self):
         self.refresh = timer()

@@ -3,7 +3,7 @@ print("Loading Unified Indicator Module")
 # Provides a surface for control over the LEDs connected via GPIO. For the tr-tr108
 # LEDs are controlled directly from GPIO, for the tr109 a shift register is used
 
-from objects import *
+from objects import configure, Timer, Events, translate
 import time
 import math
 
@@ -160,7 +160,7 @@ def screen_off():
 
 
 # The following class drives the ABGD ripple animation for the tr-109.
-class ripple(object):
+class ripple:
 
     def __init__(self):
         self.beat = 0

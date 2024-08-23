@@ -3,7 +3,7 @@
 print("Loading Luma.LCD Nokia 5110 Screen")
 import math
 import time
-from input import *
+from input import Inputs, threaded_input, input_tester
 
 
 from luma.core.interface.serial import spi
@@ -18,7 +18,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 # load the module that draws graphs
-from pilgraph import *
+from pilgraph import GraphArea, graph_prep_process
 
 
 # Load default font.
@@ -49,7 +49,7 @@ fore_col = 0
 back_col = 1
 
 # Controls text objects drawn to the LCD
-class LabelObj(object):
+class LabelObj:
     def __init__(self,string,font,draw):
         self.font = font
         self.draw = draw
@@ -64,7 +64,7 @@ class LabelObj(object):
 
 
 # Controls the LCARS frame, measures the label and makes sure the top frame bar has the right spacing.
-class MultiFrame(object):
+class MultiFrame:
 
     def __init__(self,draw, input):
         self.input = input
@@ -201,7 +201,7 @@ class MultiFrame(object):
 # Screen instantiates a draw object and passes it the image background.
 # Screen monitors button presses and passes flags for interface updates to the draw object.
 
-class NokiaScreen(object):
+class NokiaScreen:
 
     def __init__(self):
 

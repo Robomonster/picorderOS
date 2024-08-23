@@ -5,8 +5,8 @@ from threading import Thread
 
 import iwlist
 import time
-from plars import *
-from objects import *
+from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from objects import configure, Timer, Events, translate
 import socket
 from bluetooth import *
 
@@ -29,7 +29,7 @@ def get_IP():
 def get_ssid():
     return os.popen("iwgetid").readline()
 
-class Wifi_Scan(object):
+class Wifi_Scan:
 
     timed = timer()
 
@@ -102,7 +102,7 @@ class Wifi_Scan(object):
 
 
 
-class BT_Scan(object):
+class BT_Scan:
 
     timed = timer()
 
