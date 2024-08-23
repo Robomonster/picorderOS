@@ -7,6 +7,8 @@ from objects import *
 import time
 import math
 
+ripple_down = True
+
 #loads parameters for configurations
 interval = configure.LED_TIMER
 timer = timer()
@@ -57,13 +59,9 @@ if configure.tr108:
 	GPIO.setup(led2, GPIO.OUT) # LED pin set as output
 	GPIO.setup(led3, GPIO.OUT) # LED pin set as output
 
-# loads the pin configurations and modes for the tr-109 (shift register based)
+# loads the pin configurations and modes for the tr-109 (shift register based)``
 if configure.tr109:
-	# Pin Definitons:
-	led1 = 16 #19 # Broadcom pin 19
-	led2 = 20 #6 # Broadcom pin 13
-	led3 = 6 #20
-	led4 = 19 #16
+
 	sc_led = 15
 
 	# Pin Setup:
@@ -79,7 +77,8 @@ if configure.tr109:
 	GPIO.setup(configure.PIN_LATCH2, GPIO.OUT)
 	GPIO.setup(configure.PIN_CLOCK2, GPIO.OUT)
 
-	GPIO.setup(sc_led, GPIO.OUT)
+	if configure.display != 2:
+		GPIO.setup(sc_led, GPIO.OUT)
 
 
 # delivers data to the shift register
@@ -207,11 +206,16 @@ class ripple(object):
 
 		# if lights are engaged this block of code will run the animation, or else
 		# turn them off.
-		if self.lights:
+		if self.lights and configure.leds_on[0]:
 
 			if configure.tr109:
+
+				# loop around if to cycle frame.
 				if self.beat > 3:
 					self.beat = 0
+
+				if self.beat < 0:
+					self.beat = 3
 
 				if self.beat == 0:
 					shiftout(140)
@@ -229,12 +233,16 @@ class ripple(object):
 					shiftout(26)
 					shiftout(26, board = 1)
 
-				self.beat += 1
-
+				# lets you set the direction of the ABGD ripple (some like it up, some like it down IDK)
+				if ripple_down:
+					self.beat += 1
+				else:
+					self.beat -= 1
 		else:
+
 			if configure.tr109:
 				shiftout(0)
-				shiftout(0,board =1)
+				shiftout(0,board = 1)
 
 
 		if configure.sensehat and configure.moire[0]:
@@ -257,7 +265,6 @@ class ripple(object):
 
 			sensehat.set_pixels(moire)
 			self.ticks += 1
-
 
 
 # function to handle lights as a seperate thread.

@@ -1,16 +1,15 @@
-print("Loading AMG8833 Thermal Camera Module")
+print("Loading pygame based AMG8833 Thermal Camera Module")
 #import pygame
 import random
 import math
 import numpy
 
-# Load up the image library stuff to help draw bitmaps to push to the screen
-import PIL.ImageOps
 
 
 # from https://learn.adafruit.com/adafruit-amg8833-8x8-thermal-camera-sensor/raspberry-pi-thermal-camera
 # interpolates the data into a smoothed screen res
 import numpy as np
+import pygame
 from scipy.interpolate import griddata
 from colour import Color
 from plars import *
@@ -65,10 +64,6 @@ colors = list(cool.range_to(hot, COLORDEPTH))
 
 # create the array of colors
 colors = [(int(c.red * 255), int(c.green * 255), int(c.blue * 255)) for c in colors]
-
-displayPixelWidth = width / 30
-displayPixelHeight = height / 30
-
 
 colrange = list(cool.range_to(hot, 256))
 
@@ -136,7 +131,7 @@ class ThermalPixel(object):
 		if self.count > 255:
 			self.count = 0
 
-		surface.rectangle([(self.x, self.y), (self.x + self.w, self.y + self.h)], fill = (red,green,blue), outline=None)
+		pygame.draw.rect(surface, (red,green,blue), (self.x, self.y, self.w, self.h))
 
 class ThermalColumns(object):
 
@@ -189,6 +184,9 @@ class ThermalGrid(object):
 		self.average = 0
 		self.ticks = 0
 
+		self.displayPixelWidth = self.w / 30
+		self.displayPixelHeight = self.h / 30
+
 		self.dummy = [
 				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],
@@ -210,6 +208,7 @@ class ThermalGrid(object):
 				self.rows[i].update(self.data[i],self.high,self.low,surface)
 		else:
 			self.interpolate(surface)
+			
 	# Function to draw a pretty pattern to the display for demonstration.
 	def animate(self):
 
@@ -230,11 +229,6 @@ class ThermalGrid(object):
 		return self.dummy
 
 	def interpolate(self, surface):
-
-		height = self.w
-		width = self.h
-		displayPixelWidth = width / 30
-		displayPixelHeight = height / 30
 
 		if configure.auto[0]:
 			# low range of the sensor (this will be blue on the screen)
@@ -257,11 +251,10 @@ class ThermalGrid(object):
 		# draw everything
 		for ix, row in enumerate(bicubic):
 			for jx, pixel in enumerate(row):
-				x = self.x + (displayPixelHeight * ix)
-				y = self.y + (displayPixelWidth * jx)
-				x2 = x + displayPixelHeight
-				y2 = y + displayPixelWidth
-				surface.rectangle([(x, y), (x2, y2)], fill = colors[constrain(int(pixel), 0, COLORDEPTH - 1)], outline=None)
+				x = self.x + (self.displayPixelWidth * ix)
+				y = self.y + (self.displayPixelHeight * jx)
+
+				pygame.draw.rect(surface, colors[constrain(int(pixel), 0, COLORDEPTH - 1)], (x, y, self.displayPixelWidth, self.displayPixelHeight))
 
 	def update(self):
 

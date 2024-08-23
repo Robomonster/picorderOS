@@ -2,10 +2,12 @@ from objects import *
 import simpleaudio as sa
 print("Loading Audio Thread")
 
+#109 Sounds
 scansound = sa.WaveObject.from_wave_file("assets/scanning.wav")
 clicksound = sa.WaveObject.from_wave_file("assets/clicking.wav")
 beepsound = sa.WaveObject.from_wave_file("assets/beep.wav")
 alarmsound = sa.WaveObject.from_wave_file("assets/alarm.wav")
+
 
 
 sounds = [scansound, clicksound]
@@ -44,13 +46,16 @@ def threaded_audio():
 
             # controls the main tricorder sound loop
             if configure.dr_open[0]:
-                if not warble.is_playing():
+                if not warble.is_playing() and configure.warble[0]:
                     warble = scansound.play()
             else:
                 if warble.is_playing():
                     warble.stop()
+            
+            if not configure.warble[0]:
+                warble.stop()
 
-            if configure.alarm_ready[0]:
+            if configure.alarm_ready[0] and configure.alarm[0]:
                 if not alarm.is_playing():
                     alarm = alarmsound.play()
                 configure.alarm_ready[0] = False

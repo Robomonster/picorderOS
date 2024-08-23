@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
-# PicorderOS Alpha --------------------------------- December 2021
+# PicorderOS --------------------------------------------- 2023
 # Created by Chris Barrett ------------------------- directive0
 # For my sister, a real life Beverly Crusher.
 
-print("PicorderOS - Alpha")
+print("PicorderOS")
 print("Loading Components")
 
 import os
+import sys
 from threading import Thread
 
 
@@ -23,13 +24,10 @@ if configure.audio[0]:
 
 # This part loads the appropriate modules depending on which preference flags are set.
 
-# If we are NOT just running on a computer for development or demo purposes.
-if not configure.pc:
-	# load up the LED indicator module
+# load up the LED indicator module
+if configure.leds[0]:
 	from leds import *
-else:
-	# otherwise load up the demonstration and dummy modules that emulate sensors and pass GPIO signals without requiring any real GPIO.
-	from gpiodummy import *
+
 
 # The following are only loaded in TR-108 mode
 if configure.tr108:
@@ -48,6 +46,10 @@ if configure.tr109:
 	if configure.display == 0:
 		from lcars_bw import *
 
+if configure.CLI:
+	from cli_display import *
+
+
 
 # the following function is our main loop, it contains all the flow for our program.
 def Main():
@@ -56,140 +58,69 @@ def Main():
 	# they all have different names but each display object should use the same
 	# named methods for simplicity sake.
 	if configure.tr108:
-		PyScreen = Screen()
-		configure.graph_size[0] = PyScreen.get_size()
+		screen_object = Screen()
+		configure.graph_size[0] = screen_object.get_size()
 
 	if configure.tr109:
-
 		if configure.display == 0:
-			dotscreen = NokiaScreen()
+			screen_object = NokiaScreen()
 		if configure.display == 1 or configure.display == 2:
-			colourscreen = ColourScreen()
-			colourscreen.start_up()
+			screen_object = ColourScreen()
+			screen_object.start_up()
 
-		configure.graph_size[0] = colourscreen.get_size()
+		configure.graph_size[0] = screen_object.get_size()
+
+	if configure.CLI:
+		screen_object = CLI_Display()
+
 
 	start_time = time.time()
+
+
+	# The following code sets up the various threads that the rest of the program will use
+	
 	#start the sensor loop
 	sensor_thread = Thread(target = threaded_sensor, args = ())
 	sensor_thread.start()
 
 
+	# if leds enabled start the event monitor for LEDs
 	if configure.leds[0]:
-		# seperate thread for LED lighting.
 		led_thread = Thread(target = ripple_async, args = ())
 		led_thread.start()
 
 
-	#start the event monitor
+	# start the input monitor thread
 	input_thread = Thread(target = threaded_input, args = ())
 	input_thread.start()
 
-	#start the audio service
+	#start the audio service thread
 	if configure.audio[0]:
-		audio_thread = Thread(target = threaded_audio, args = ())
+		audio_thread = Thread(target = threaded_tng_audio, args = ())
 		audio_thread.start()
-
-
 
 	print("Main Loop Starting")
 
 	# Main loop. Break when status is "quit".
 	while configure.status[0] != "quit":
 
-
 		# try allows us to capture a keyboard interrupt and assign behaviours.
 		try:
 
-			# Runs the startup animation played when you first boot the program.
-			if configure.status[0] == "startup":
-
-				if configure.tr109:
-					configure.status[0] = colourscreen.start_up()
-
-
-				if configure.tr108:
-					configure.status[0] = PyScreen.startup_screen(start_time)
-
-
-			# The rest of these loops all handle a different mode, switched by buttons within the functions.
-			if configure.status[0] == "mode_a":
-
-				# the following is only run if the tr108 flag is set
-				if configure.tr108:
-
-					configure.status[0] = PyScreen.graph_screen()
-
-					if not configure.pc:
-						leda_on()
-						ledb_off()
-						ledc_off()
-
-				if configure.tr109:
-
-					if configure.display == 0:
-						configure.status[0] = dotscreen.push(data)
-					if configure.display == 1 or configure.display == 2:
-						configure.status[0] = colourscreen.graph_screen()
-
-			if configure.status[0] == "mode_b":
-
-				if configure.tr108:
-
-					configure.status[0] = PyScreen.slider_screen()
-					if not configure.pc:
-						leda_off()
-						ledb_on()
-						ledc_off()
-
-				if configure.tr109:
-					if configure.display == 0:
-						configure.status[0] = dotscreen.push(data)
-					if configure.display == 1 or configure.display == 2:
-						configure.status[0] = colourscreen.em_screen()
-
-			if configure.status[0] == "mode_c":
-				if configure.tr109:
-					if configure.display == 1:
-						configure.status[0] = colourscreen.thermal_screen()
-
-				if configure.tr108:
-					configure.status[0] = PyScreen.video_screen()
-					if not configure.pc:
-						leda_on()
-						ledb_on()
-						ledc_off()
-
-			if configure.status[0] == "settings":
-
-				if configure.tr108:
-					configure.status[0] = PyScreen.settings()
-					if not configure.pc:
-						leda_off()
-						ledb_off()
-						ledc_on()
-
-				if configure.tr109:
-					if configure.display == 0:
-						configure.status[0] = dotscreen.push()
-					if configure.display == 1 or configure.display == 2:
-						configure.status[0] = colourscreen.settings()
-
-			# Handles the poweroff screen
-			if configure.status[0] == "poweroff":
-
-				if configure.tr109:
-					if configure.display == 0:
-						configure.status[0] = dotscreen.push()
-					if configure.display == 1 or configure.display == 2:
-						configure.status[0] = colourscreen.powerdown()
+			screen_object.run()
 
 			if configure.status[0] == "shutdown":
 				print("Shut Down!")
 				configure.status[0] = "quit"
-				resetleds()
-				cleangpio()
+
+				if configure.leds[0]:
+					resetleds()
+
+				if configure.input_gpio:
+					cleangpio()
+
 				os.system("sudo shutdown -h now")
+				
 
 		# If CTRL-C is received the program gracefully turns off the LEDs and resets the GPIO.
 		except KeyboardInterrupt:
@@ -198,11 +129,24 @@ def Main():
 	print("Quit Encountered")
 	print("Main Loop Shutting Down")
 
-	# The following calls are for cleanup and just turn "off" any GPIO
-	resetleds()
-	cleangpio()
+	# The following calls are for cleanup and just turn "off" any elements.
+	if configure.leds[0]:
+		resetleds()
+
+	if configure.input_gpio:
+		cleangpio()
+
+	if configure.CLI:
+		cli_reset()
+	
+	if configure.audio[0]:
+		audio_thread.join()
+
+	sensor_thread.join()
+	led_thread.join()
+	input_thread.join()
 	plars.shutdown()
-	#print("Quit reached")
+	sys.exit()
 
 
 # the following call starts our program and begins the loop.

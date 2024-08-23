@@ -11,6 +11,9 @@ PicorderOS is experimental and in development. A lot of user configuration is re
 For further information on hardware please visit the [Wiki](https://squaredwave.com/wiki/index.php?title=PicorderOS)
 
 ## Requirements:
+
+PicorderOS was written to be run on a Raspberry Pi (of any kind) running Raspberry Pi OS - Legacy. 
+
 Depending on hardware configuration picorderOS can use a number of existing third party libraries to communicate with i2c sensors. At present only a few sensors are currently officially supported like
 
 - The [Sensehat](https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/2) using the [sensehat library](https://pythonhosted.org/sense-hat/)
@@ -30,8 +33,7 @@ Most installs will require:
 
 For capacitive touch sensing the [Pimoroni cap1xxx library](https://github.com/pimoroni/cap1xxx) can be used for CAP1208 based capacitive touch buttons, and an [adafruit MPR121 Capacitive Sensor](https://github.com/adafruit/Adafruit_CircuitPython_MPR121) for MPR121 ones.
 
-PicorderOS can run using an HDMI or Composite screen in some cases, and can also use TFT LCD displays. Depending on your choice of screen you may need:
-- [Pygame](https://www.pygame.org/wiki/GettingStarted) (For framebuffer screens)
+PicorderOS can run using an HDMI or Composite screen in some cases, and can also use TFT LCD displays. Depending on your choice of screen you may need:- [Pygame](https://www.pygame.org/wiki/GettingStarted) (For framebuffer screens)
 - [Luma.lcd](https://pypi.org/project/luma.lcd/) (For a range of LCD options, thought not all are supported)
 
 
@@ -39,26 +41,43 @@ PicorderOS can run using an HDMI or Composite screen in some cases, and can also
 
 A requirements file is included, it can be used to install all the necessary python modules through pip.
 
+Issue the following commands from within the picorderOS folder:
+
 ```
-python3 -m pip -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
+RaspberryPi OS now ships with a version of pip that requires you install new modules in a virtual environment so as not to trash system modules.
+
+A virtual 
 
 A fresh Raspberry Pi OS image can usually be initialized to work with picorderOS with the following installation commands:
 
 ```
-sudo apt-get update
+sudo apt update
+sudo apt upgrade -y
 
-sudo apt-get upgrade
+sudo apt install -y build-essential git python3-virtualenv libsdl2-dev python3-pandas libsdl2-ttf-dev libjpeg-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libportmidi-dev python3-dev python3-scipy python3-pygame libavcodec-dev libavfilter-dev libavdevice-dev ffmpeg
 
-sudo apt install libsdl2-2.0-0 libsdl2-gfx-1.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-net-2.0-0 libsdl2-ttf-2.0-0
+git clone https://github.com/directive0/picorderOS 
+cd picorderOS
+python3 -m venv .picorder
+source .picorder/bin/activate
+sudo .picorder/bin/pip3 cache purge
+sudo .picorder/bin/pip3 install -r requirements.txt --no-cache-dir
+git clone https://github.com/RPi-Distro/RTIMULib
+cd /RTIMULib/Linux/python
+../../../.picorder/bin/python3 setup.py install                           
 
-sudo apt-get install libatlas-base-dev libsdl2-dev libopenjp2-7-dev libtiff5 python3-pandas python3-psutil
 
-pip3 install --upgrade colour luma.lcd luma.emulator pygame==2.0.0
+mkdir data
+
 ```
-Depending on your sensors, you will need to install a package that supports it:
+
+## Suggested Information:
+
+Depending on your sensors, you will need to install a package that supports it for example in the case of the Bosch BME 680:
 ```
-pip3 install adafruit-circuitpython-bme680 sense-hat adafruit-circuitpython-mpr121
+pip3 install adafruit-circuitpython-bme680
 
 ```
 

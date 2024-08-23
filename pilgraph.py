@@ -10,12 +10,8 @@ print("Loading Python IL Module")
 
 
 
-# it is initialized with:
-# - ident: a graph identifier so it knows which sensor to grab data for
-# - graphcoords: list containing the top left x,y coordinates
-# - graphspan: list containing the x and y span in pixels
-# - cycle: time per division of the graph (not working)
-# -
+
+
 
 from objects import *
 from PIL import Image
@@ -65,6 +61,10 @@ def graph_prep_process(conn,samples,datalist,auto,newrange,targetrange,sourceran
 
 
 class graph_area(object):
+# it is initialized with:
+# - ident: a graph identifier number so it knows which currently selected graphable sensor (0-2) this graph is
+# - graphcoords: list containing the top left x,y coordinates
+# - graphspan: list containing the x and y span in pixels
 
 
 	def __init__(self, ident, graphcoords, graphspan, cycle = 0, colour = 0, width = 1, type = 0, samples = False):
@@ -99,6 +99,8 @@ class graph_area(object):
 		self.datahigh = 0
 		self.datalow = 0
 		self.newrange = (self.datalow,self.datahigh)
+
+		self.timelength = 0
 
 		# stores the graph identifier, there are three on the multiframe
 		self.ident = ident
@@ -213,6 +215,9 @@ class graph_area(object):
 
 	def render(self, draw, auto = True, dot = True, ranger = None):
 
+
+		return_value = 0
+
 		self.auto = configure.auto[0]
 
 		# for PLARS we reduce the common identifier of our currently selected sensor
@@ -231,11 +236,19 @@ class graph_area(object):
 		if self.type == 0:
 			index = configure.sensors[self.ident][0]
 			dsc,dev,sym,maxi,mini = configure.sensor_info[index]
-			recent = plars.get_recent(dsc,dev,num = self.samples)
+			recent, self.timelength = plars.get_recent(dsc,dev,num = self.samples, time = True)
+
+
+			# for returning last value on multigraph
+			if len(recent) == 0:
+				return_value = 47
+			else:
+				return_value = recent[-1]
 
 		# EM pilgraph: pulls wifi data only.
 		elif self.type == 1:
 			recent = plars.get_top_em_history(no = self.samples)
+			return_value = recent[-1]
 
 		# Testing a new graph
 		elif self.type == 2:
@@ -253,6 +266,10 @@ class graph_area(object):
 		if dot:
 			x1 = cords[0][0] - (self.dotw/2)
 			y1 = cords[0][1] - (self.doth/2)
+
 			x2 = cords[0][0] + (self.dotw/2)
 			y2 = cords[0][1] + (self.doth/2)
 			draw.ellipse([x1,y1,x2,y2],self.colour)
+
+
+		return return_value

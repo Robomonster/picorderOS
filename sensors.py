@@ -54,15 +54,22 @@ if configure.pocket_geiger:
 if configure.amg8833:
 	import adafruit_amg88xx
 	import busio
-	import board
-	i2c = busio.I2C(board.SCL, board.SDA)
+	i2c = busio.I2C(configure.PIN_SCL, configure.PIN_SDA)
 	amg = adafruit_amg88xx.AMG88XX(i2c)
+
+if configure.EM:
+	from modulated_em import *
+
+if configure.gps:
+	from positioning import *
+
+
 
 
 # An object to store each sensor value and context.
 class Fragment(object):
 
-	__slots__ = ('value','mini','maxi','dsc','sym','dev','timestamp')
+	__slots__ = ('value','mini','maxi','dsc','sym','dev','timestamp','position')
 
 	def __init__(self,mini,maxi,dsc,sym,dev):
 		self.mini = mini
@@ -71,23 +78,28 @@ class Fragment(object):
 		self.dev = dev
 		self.sym = sym
 		self.value = 47
+		self.timestamp = self.value
+		self.position = [self.value,self.value]
 
 	# Sets the value and timestamp for the fragment.
-	def set(self,value, timestamp):
+	def set(self,value, timestamp, position):
 
 		self.value = value
 
 		self.timestamp = timestamp
 
+		self.position = position
+
 	# Returns all the data for the fragment.
 	def get(self):
-		return [self.value, self.mini, self.maxi, self.dsc, self.sym, self.dev, self.timestamp]
+		return [self.value, self.mini, self.maxi, self.dsc, self.sym, self.dev, self.timestamp, self.position[0], self.position[1]]
 
 	# Returns only the info constants for this fragment
 	def get_info(self):
 		return [self.mini, self.maxi, self.dsc, self.sym, self.dev]
 
 class Sensor(object):
+
 	# sensors should check the configuration flags to see which sensors are
 	# selected and then if active should poll the sensor and append it to the
 	# sensor array.
@@ -107,9 +119,12 @@ class Sensor(object):
 		#'value','min','max','dsc','sym','dev','timestamp'
 
 
-		# testing:
 		# data fragments (objects that contain the most recent sensor value,
-		# plus its context) are objects called Fragment().
+		# plus metadata for context) are called Fragment().
+
+		if configure.gps:
+			self.gps_speed = Fragment(0.0,0.0,"GPS Speed","kn", "gps")
+
 		if configure.system_vitals:
 
 			self.step = 0.0
@@ -142,8 +157,8 @@ class Sensor(object):
 			# activates low light conditions to not blind the user.
 			self.sense.low_light = True
 
-			self.sh_temp = Fragment(0,65,"Thermometer",self.deg_sym + "c", "sensehat")
-			self.sh_humi = Fragment(20,80,"Hygrometer", "%", "sensehat")
+			self.sh_temp = Fragment(-40,120,"Thermometer",self.deg_sym + "c", "sensehat")
+			self.sh_humi = Fragment(0,100,"Hygrometer", "%", "sensehat")
 			self.sh_baro = Fragment(260,1260,"Barometer","hPa", "sensehat")
 			self.sh_magx = Fragment(-500,500,"MagnetX","G", "sensehat")
 			self.sh_magy = Fragment(-500,500,"MagnetY","G", "sensehat")
@@ -159,7 +174,7 @@ class Sensor(object):
 			self.irt_ambi = Fragment(0,80,"IR ambient [mlx]",self.deg_sym + "c")
 			self.irt_obje = Fragment(0,80,"IR object [mlx]",self.deg_sym + "c")
 
-		if configure.envirophat: # and not configure.simulate:
+		if configure.envirophat: 
 
 			self.ep_temp = Fragment(0,65,"Thermometer",self.deg_sym + "c","Envirophat")
 			self.ep_colo = Fragment(20,80,"Colour", "RGB","Envirophat")
@@ -181,19 +196,16 @@ class Sensor(object):
 			self.bme_press = Fragment(300,1100,"Barometer","hPa", "BME680")
 			self.bme_voc = Fragment(300000,1100000,"VOC","KOhm", "BME680")
 
-
-			#if configure.bme_bsec:
-			#self.voc_procc = subprocess.Popen(['./bsec_bme680'], stdout=subprocess.PIPE)
-			#	self.bme_bsec = Fragment(-40,85,"Quality",self.deg_sym + "Q", "BME680")
-
 		if configure.pocket_geiger:
-			self.radiat = Fragment(0.0, 10000.0, "Radiation", "urem/hr", "pocketgeiger")
+			self.radiat = Fragment(0.0, 10000.0, "Radiation", "ur/h", "pocketgeiger")
 			self.radiation = RadiationWatch(configure.PG_SIG,configure.PG_NS)
 			self.radiation.setup()
 
 		if configure.amg8833:
+			self.thermal_frame = []
 			self.amg_high = Fragment(0.0, 80.0, "IRHigh", self.deg_sym + "c", "amg8833")
 			self.amg_low = Fragment(0.0, 80.0, "IRLow", self.deg_sym + "c", "amg8833")
+
 
 		configure.sensor_info = self.get_all_info()
 
@@ -227,7 +239,11 @@ class Sensor(object):
 		self.step += .1
 		return wavestep
 
+	def get_thermal_frame(self):
+		return self.thermal_frame
 
+
+# the main function that collects all sensor data
 	def get(self):
 
 		#sensorlist holds all the data fragments to be handed to plars.
@@ -236,14 +252,21 @@ class Sensor(object):
 		#timestamp for this sensor get.
 		timestamp = time.time()
 
+		if configure.gps:
+			gps_data = GPS_function()
+			position = [gps_data["lat"],gps_data["lon"]]
+			self.gps_speed.set(gps_data["speed"],timestamp, position)
+			sensorlist.append((self.gps_speed))
+		else:
+			position = [47.98,47.98]
 
 
 		if configure.bme:
 
-			self.bme_temp.set(self.bme.temperature,timestamp)
-			self.bme_humi.set(self.bme.humidity,timestamp)
-			self.bme_press.set(self.bme.pressure,timestamp)
-			self.bme_voc.set(self.bme.gas / 1000,timestamp)
+			self.bme_temp.set(self.bme.temperature,timestamp, position)
+			self.bme_humi.set(self.bme.humidity,timestamp, position)
+			self.bme_press.set(self.bme.pressure,timestamp, position)
+			self.bme_voc.set(self.bme.gas / 1000,timestamp, position)
 
 			sensorlist.extend((self.bme_temp,self.bme_humi,self.bme_press, self.bme_voc))
 
@@ -252,15 +275,15 @@ class Sensor(object):
 			magdata = sense.get_compass_raw()
 			acceldata = sense.get_accelerometer_raw()
 
-			self.sh_temp.set(sense.get_temperature(),timestamp)
-			self.sh_humi.set(sense.get_humidity(),timestamp)
-			self.sh_baro.set(sense.get_pressure(),timestamp)
-			self.sh_magx.set(magdata["x"],timestamp)
-			self.sh_magy.set(magdata["y"],timestamp)
-			self.sh_magz.set(magdata["z"],timestamp)
-			self.sh_accx.set(acceldata['x'],timestamp)
-			self.sh_accy.set(acceldata['y'],timestamp)
-			self.sh_accz.set(acceldata['z'],timestamp)
+			self.sh_temp.set(sense.get_temperature(),timestamp, position)
+			self.sh_humi.set(sense.get_humidity(),timestamp, position)
+			self.sh_baro.set(sense.get_pressure(),timestamp, position)
+			self.sh_magx.set(magdata["x"],timestamp, position)
+			self.sh_magy.set(magdata["y"],timestamp, position)
+			self.sh_magz.set(magdata["z"],timestamp, position)
+			self.sh_accx.set(acceldata['x'],timestamp, position)
+			self.sh_accy.set(acceldata['y'],timestamp, position)
+			self.sh_accz.set(acceldata['z'],timestamp, position)
 
 			sensorlist.extend((self.sh_temp, self.sh_baro, self.sh_humi, self.sh_magx, self.sh_magy, self.sh_magz, self.sh_accx, self.sh_accy, self.sh_accz))
 
@@ -270,18 +293,21 @@ class Sensor(object):
 			rad_data = float(data["uSvh"])
 
 			# times 100 to convert to urem/h
-			self.radiat.set(rad_data*100, timestamp)
+			self.radiat.set(rad_data*100, timestamp, position)
 
 			sensorlist.append(self.radiat)
 
 		if configure.amg8833:
-			data = numpy.array(amg.pixels)
+			self.thermal_frame = amg.pixels
+
+
+			data = numpy.array(self.thermal_frame)
 
 			high = numpy.max(data)
 			low = numpy.min(data)
 
-			self.amg_high.set(high,timestamp)
-			self.amg_low.set(low,timestamp)
+			self.amg_high.set(high,timestamp, position)
+			self.amg_low.set(low,timestamp, position)
 
 			sensorlist.extend((self.amg_high, self.amg_low))
 
@@ -291,15 +317,15 @@ class Sensor(object):
 			self.mag_values = motion.magnetometer()
 			self.acc_values = [round(x, 2) for x in motion.accelerometer()]
 
-			self.ep_temp.set(weather.temperature(),timestamp)
-			self.ep_colo.set(light.light(),timestamp)
-			self.ep_baro.set(weather.pressure(unit='hpa'), timestamp)
-			self.ep_magx.set(self.mag_values[0],timestamp)
-			self.ep_magy.set(self.mag_values[1],timestamp)
-			self.ep_magz.set(self.mag_values[2],timestamp)
-			self.ep_accx.set(self.acc_values[0],timestamp)
-			self.ep_accy.set(self.acc_values[1],timestamp)
-			self.ep_accz.set(self.acc_values[2],timestamp)
+			self.ep_temp.set(weather.temperature(),timestamp, position)
+			self.ep_colo.set(light.light(),timestamp, position)
+			self.ep_baro.set(weather.pressure(unit='hpa'), timestamp, position)
+			self.ep_magx.set(self.mag_values[0],timestamp, position)
+			self.ep_magy.set(self.mag_values[1],timestamp, position)
+			self.ep_magz.set(self.mag_values[2],timestamp, position)
+			self.ep_accx.set(self.acc_values[0],timestamp, position)
+			self.ep_accy.set(self.acc_values[1],timestamp, position)
+			self.ep_accz.set(self.acc_values[2],timestamp, position)
 
 			sensorlist.extend((self.ep_temp, self.ep_baro, self.ep_colo, self.ep_magx, self.ep_magy, self.ep_magz, self.ep_accx, self.ep_accy, self.ep_accz))
 
@@ -313,28 +339,26 @@ class Sensor(object):
 				t = float(47)
 
 			# update each fragment with new data and mark the time.
-			self.cputemp.set(t,timestamp)
-			self.cpuperc.set(float(psutil.cpu_percent()),timestamp)
-			self.virtmem.set(float(psutil.virtual_memory().available * 0.0000001),timestamp)
-			self.bytsent.set(float(psutil.net_io_counters().bytes_recv * 0.00001),timestamp)
-			self.bytrece.set(float(psutil.net_io_counters().bytes_recv * 0.00001),timestamp)
+			self.cputemp.set(t,timestamp, position)
+			self.cpuperc.set(float(psutil.cpu_percent()),timestamp, position)
+			self.virtmem.set(float(psutil.virtual_memory().available * 0.0000001),timestamp, position)
+			self.bytsent.set(float(psutil.net_io_counters().bytes_recv * 0.00001),timestamp, position)
+			self.bytrece.set(float(psutil.net_io_counters().bytes_recv * 0.00001),timestamp, position)
 
 			if self.generators:
-				self.sinewav.set(float(self.sin_gen()*100),timestamp)
-				self.tanwave.set(float(self.tan_gen()*100),timestamp)
-				self.coswave.set(float(self.cos_gen()*100),timestamp)
-				self.sinwav2.set(float(self.sin2_gen()*100),timestamp)
+				self.sinewav.set(float(self.sin_gen()*100),timestamp, position)
+				self.tanwave.set(float(self.tan_gen()*100),timestamp, position)
+				self.coswave.set(float(self.cos_gen()*100),timestamp, position)
+				self.sinwav2.set(float(self.sin2_gen()*100),timestamp, position)
 
 			# load the fragments into the sensorlist
 			sensorlist.extend((self.cputemp, self.cpuperc, self.virtmem, self.bytsent, self.bytrece))
 
 			if self.generators:
-				 sensorlist.extend((self.sinewav, self.tanwave, self.coswave, self.sinwav2))
-
-
-
-		configure.max_sensors[0] = len(sensorlist)
-
+				 sensorlist.extend((self.sinewav, self.tanwave, self.coswave, self.sinwav2)) 
+			
+			configure.max_sensors[0] = len(sensorlist)
+			
 		if len(sensorlist) < 1:
 			print("NO SENSORS LOADED")
 
@@ -405,19 +429,36 @@ class MLX90614():
 def sensor_process(conn):
 	#init sensors
 	sensors = Sensor()
+	timed = timer()
 
 	while True:
-		#constantly grab sensors.
-		conn.send(sensors.get())
+		if timed.timelapsed() > configure.samplerate[0]:
+			sensor_data = sensors.get()
+			if configure.amg8833:
+				thermal_frame = sensors.get_thermal_frame()
+			else:
+				thermal_frame = []
+			#constantly grab sensors
+			conn.send([sensor_data, thermal_frame])
+			timed.logtime()
+
+wifitimer = timer()
 
 def threaded_sensor():
 
 	sensors = Sensor()
+
 	sensors.get()
-	configure.buffer_size[0] = configure.graph_size[0]*len(configure.sensor_info)
+
+	# checks if custom buffer size has not been set.
+	if configure.buffer_size[0] == 0:
+		# uses graph length and sensor array number to determine optimal buffer size.
+		# stores enough data for the highest graph length. 
+		configure.buffer_size[0] = configure.graph_size[0]*len(configure.sensor_info)
+
 	configure.sensor_ready[0] = True
 
-	timed = timer()
+
 	sensors.end()
 	parent_conn,child_conn = Pipe()
 	sense_process = Process(target=sensor_process, args=(child_conn,))
@@ -425,11 +466,23 @@ def threaded_sensor():
 
 	while not configure.status == "quit":
 
-		if timed.timelapsed() > configure.samplerate[0]:
+		while True:
+			
+	
+			item = parent_conn.recv()
+			
+			if item is not None:
 
-			timed.logtime()
-			data = parent_conn.recv()
-			#print(data)
-			plars.update(data)
+
+				data, thermal = item
+				plars.update(data)
+				plars.update_thermal(thermal)
+
+				#sets current position
+				configure.position = [data[0].get()[7],data[0].get()[8]]
+			else:
+				break
+
+
 
 	sense_process.terminate()
