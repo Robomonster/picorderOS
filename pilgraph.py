@@ -96,7 +96,7 @@ def graph_prep_process_single(samples,datalist,auto,newrange,targetrange,sourcer
     return newlist
 
 
-class graph_area(object):
+class graph_area:
 # it is initialized with:
 # - ident: a graph identifier number so it knows which currently selected graphable sensor (0-2) this graph is
 # - graphcoords: list containing the top left x,y coordinates

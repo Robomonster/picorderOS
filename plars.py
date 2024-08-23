@@ -122,7 +122,7 @@ def join_dataframes(buffer,newdata):
     
     return result
 
-class PLARS(object):
+class PLARS:
 
     def __init__(self):
 

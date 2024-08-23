@@ -54,7 +54,7 @@ back_col = 1
 
 
 
-class DrawGrid(object):
+class DrawGrid:
     def __init__(self,x,y,w,h,colour,segx = 4, segy = 4):
         self.x = x
         self.y = y
@@ -125,7 +125,7 @@ class DrawGrid(object):
             draw.line(self.vcoordlist[i],self.colour,1)
 
 
-class Dialogue(object):
+class Dialogue:
 
     def __init__(self):
 
@@ -179,7 +179,7 @@ class Dialogue(object):
         pass
 
 # Controls text objects drawn to the LCD
-class LabelObj(object):
+class LabelObj:
     def __init__(self,string, font, colour = lcars_blue):
         self.font = font
         #self.draw = draw
@@ -217,7 +217,7 @@ class LabelObj(object):
 # a class to create a simple text list.
 # initialize with x/y coordinates
 # on update provide list of items to display, and draw object to draw to.
-class Label_List(object):
+class Label_List:
 
     def __init__(self, x, y, colour = lcars_orpeach, ofont = font):
 
@@ -349,7 +349,7 @@ class SelectableLabel(LabelObj):
         surface.blit(state, (pos, self.y))
 
 # serves as a screen to show the current status of the picorder
-class MasterSystemsDisplay(object):
+class MasterSystemsDisplay:
 
     def __init__(self):
         self.title = None
@@ -415,7 +415,7 @@ class MasterSystemsDisplay(object):
 
         return status
 
-class PowerMenu(object):
+class PowerMenu:
     
     def __init__(self):
 
@@ -533,7 +533,7 @@ class PowerMenu(object):
 
         return status
 
-class SettingsFrame(object):
+class SettingsFrame:
     def __init__(self):
 
         # pages are a description string and an item to change. 
@@ -657,7 +657,7 @@ class SettingsFrame(object):
         return status
 
 # a simple frame that tells the user that the picorder is loading another screen.
-class LoadingFrame(object):
+class LoadingFrame:
 
     captions = ["working", "accessing", "initializing", "computing", "calculating"]
 
@@ -675,7 +675,7 @@ class LoadingFrame(object):
 
         return status
 
-class StartUp(object):
+class StartUp:
     def __init__(self):
         self.titlex = 0
         self.titley = 77
@@ -714,7 +714,7 @@ class StartUp(object):
 
         return status
 
-class PowerDown(object):
+class PowerDown:
     def __init__(self):
 
         self.selection = 0
@@ -763,7 +763,7 @@ class PowerDown(object):
 
         return status
 
-class EMFrame(object):
+class EMFrame:
     def __init__(self):
 
         self.graphcycle = 0
@@ -1120,7 +1120,7 @@ class EMFrame(object):
 
 
 # Controls the LCARS frame, measures the label and makes sure the top frame bar has the right spacing.
-class MultiFrame(object):
+class MultiFrame:
 
     def __init__(self):
 
@@ -1362,7 +1362,7 @@ class MultiFrame(object):
         return status
 
 
-class ThermalFrame(object):
+class ThermalFrame:
     def __init__(self):
         # Sets the topleft origin of the graph
         self.graphx = 23
@@ -1486,7 +1486,7 @@ class ThermalFrame(object):
         return status
 
 
-class ColourScreen(object):
+class ColourScreen:
 
     def __init__(self):
 

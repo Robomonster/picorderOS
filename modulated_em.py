@@ -29,7 +29,7 @@ def get_IP():
 def get_ssid():
     return os.popen("iwgetid").readline()
 
-class Wifi_Scan(object):
+class Wifi_Scan:
 
     timed = Timer()
 
@@ -102,7 +102,7 @@ class Wifi_Scan(object):
 
 
 
-class BT_Scan(object):
+class BT_Scan:
 
     timed = Timer()
 

@@ -119,7 +119,7 @@ if configure.input_pcf8575:
     button_table = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,0,3,2,4]
 
 # the input class receives and relays control events for user interaction
-class Inputs(object):
+class Inputs:
 
     def __init__(self):
 

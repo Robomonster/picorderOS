@@ -64,7 +64,7 @@ if configure.gps:
 
 
 # An object to store each sensor value and context.
-class Fragment(object):
+class Fragment:
 
     __slots__ = ('value','mini','maxi','dsc','sym','dev','timestamp','position')
 
@@ -95,7 +95,7 @@ class Fragment(object):
     def get_info(self):
         return [self.mini, self.maxi, self.dsc, self.sym, self.dev]
 
-class Sensor(object):
+class Sensor:
 
     # sensors should check the configuration flags to see which sensors are
     # selected and then if active should poll the sensor and append it to the

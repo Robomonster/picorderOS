@@ -98,7 +98,7 @@ def makegrid(random = True):
     return dummyvalue
 
 # a single pixel of temperature information
-class ThermalPixel(object):
+class ThermalPixel:
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -138,7 +138,7 @@ class ThermalPixel(object):
 
         surface.rectangle([(self.x, self.y), (self.x + self.w, self.y + self.h)], fill = (red,green,blue), outline=None)
 
-class ThermalColumns(object):
+class ThermalColumns:
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -156,7 +156,7 @@ class ThermalColumns(object):
         for i in range(8):
             self.pixels[i].update(data[i],high, low, surface)
 
-class ThermalRows(object):
+class ThermalRows:
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -174,7 +174,7 @@ class ThermalRows(object):
         for i in range(8):
             self.pixels[i].update(data[i],high, low, surface)
 
-class ThermalGrid(object):
+class ThermalGrid:
 
     def __init__(self,x,y,w,h):
         self.x = x

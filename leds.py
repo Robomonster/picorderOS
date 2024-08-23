@@ -160,7 +160,7 @@ def screen_off():
 
 
 # The following class drives the ABGD ripple animation for the tr-109.
-class ripple(object):
+class ripple:
 
     def __init__(self):
         self.beat = 0

@@ -6,7 +6,7 @@ import time, configparser
 from os.path import exists
 
 
-class Preferences(object):
+class Preferences:
     def __init__(self):
         """Initializes the parameters for the program."""
         
@@ -440,7 +440,7 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
-class Timer(object):
+class Timer:
     """
     The following class is to handle interval timers.
     its used to handle concurrent program flow, but also for diagnostic.
@@ -480,7 +480,7 @@ class Timer(object):
 
 # Class to control the flow of the program using inputs. Uses flags and input events to tell each module
 # how to behave.
-class Events(object):
+class Events:
 
     # at creation takes in a list of events to map the button layout to modules behaviours, and the base module
 
