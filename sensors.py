@@ -4,6 +4,7 @@ from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes,
 import math
 import numpy
 from multiprocessing import Process, Queue, Pipe
+from multiprocessing.connection import PipeConnection
 
 
 
@@ -423,7 +424,7 @@ class MLX90614():
         return self.data_to_temp(data)
 
 # function to use the sensor class as a process.
-def sensor_process(conn):
+def sensor_process(conn: PipeConnection):
     #init sensors
     sensors = Sensor()
     timed = Timer()
@@ -457,29 +458,23 @@ def threaded_sensor():
 
 
     sensors.end()
-    parent_conn,child_conn = Pipe()
+    parent_conn, child_conn = Pipe()
     sense_process = Process(target=sensor_process, args=(child_conn,))
     sense_process.start()
 
-    while not configure.status == "quit":
-
-        while True:
-            
-    
-            item = parent_conn.recv()
-            
-            if item is not None:
+    while not configure.status[0] == "quit":
+        item = parent_conn.recv()
+        
+        if item is not None:
 
 
-                data, thermal = item
-                plars_obj.update(data)
-                plars_obj.update_thermal(thermal)
+            data, thermal = item
+            plars_obj.update(data)
+            plars_obj.update_thermal(thermal)
 
-                #sets current position
-                configure.position = [data[0].get()[7],data[0].get()[8]]
-            else:
-                break
-
-
+            #sets current position
+            configure.position = [data[0].get()[7],data[0].get()[8]]
+        else:
+            break
 
     sense_process.terminate()
