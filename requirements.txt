@@ -12,7 +12,7 @@ luma.core
 luma.emulator
 luma.lcd
 numpy
-Pillow
+Pillow==9.5.0
 psutil
 pygame
 sense_hat

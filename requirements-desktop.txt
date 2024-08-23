@@ -1,0 +1,10 @@
+numpy
+pandas
+Pillow==9.5.0
+psutil
+pygame
+luma.core
+luma.emulator
+luma.lcd
+colour
+scipy
