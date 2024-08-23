@@ -22,60 +22,60 @@ butc = 13
 
 # a function to clear the gpio
 def cleangpio():
-	pass
+    pass
 
 def resetleds():
-	pass
+    pass
 
 def leda_on():
-	pass
+    pass
 
 def ledb_on():
-	pass
+    pass
 
 def ledc_on():
-	pas
+    pas
 
 def leda_off():
-	pass
+    pass
 
 def ledb_off():
-	pass
+    pass
 
 def ledc_off():
-	pass
+    pass
 
 
 # The following function returns the instantanious state of each button.
 def buttonget():
 
-	buttondict = {'buta':False, 'butb':False, 'butc':False}
+    buttondict = {'buta':False, 'butb':False, 'butc':False}
 
-	return buttondict
+    return buttondict
 
 # The following function returns the debounced activation for each button.
 class debounce(object):
 
-	def __init__(self):
-		self.awaspressed = 0
-		self.bwaspressed = 0
-		self.cwaspressed = 0
-		self.afire = False
-		self.bfire = False
-		self.cfire = False
+    def __init__(self):
+        self.awaspressed = 0
+        self.bwaspressed = 0
+        self.cwaspressed = 0
+        self.afire = False
+        self.bfire = False
+        self.cfire = False
 
-	def read(self):
-		self.afire = False
-		self.bfire = False
-		self.cfire = False
-		buttondict = {'buta':False, 'butb':False, 'butc':False}
-		buttondict['buta'] = self.afire
-		buttondict['butb'] = self.bfire
-		buttondict['butc'] = self.cfire
+    def read(self):
+        self.afire = False
+        self.bfire = False
+        self.cfire = False
+        buttondict = {'buta':False, 'butb':False, 'butc':False}
+        buttondict['buta'] = self.afire
+        buttondict['butb'] = self.bfire
+        buttondict['butc'] = self.cfire
 
-		return buttondict
+        return buttondict
 
 
 # The following function is merely a hardware tool so I can ensure my LED's were wired correctly.
 def cycleloop():
-	pass
+    pass
