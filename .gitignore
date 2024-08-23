@@ -5,3 +5,8 @@
 /__pycache__/*
 data/
 configure.ini
+config.ini
+
+.venv/
+venv/
+.vscode/
