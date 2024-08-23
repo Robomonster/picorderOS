@@ -429,7 +429,7 @@ def threaded_input():
 	input = Inputs()
 	timeit = timer()
 
-	while not configure.status == "quit":
+	while not configure.status[0] == "quit":
 
 		if timed.timelapsed() > configure.input_samplerate:
 			input.read()
