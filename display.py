@@ -14,6 +14,8 @@ from multiprocessing import Process,Queue,Pipe
 import signal
 
 
+
+
 if configure.display == 1:
     from luma.core.interface.serial import spi
     from luma.core.render import canvas
@@ -90,7 +92,7 @@ def DisplayFunction(q):
 # the main drawing program and the possible connected screen. A range of screens
 # and libraries can be used in this way with small modifications to the base
 # class.
-class GenericDisplay:
+class GenericDisplay(object):
 
     def __init__(self):
         self.q = Queue()

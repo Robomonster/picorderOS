@@ -34,6 +34,23 @@ def get_recent_proc(conn,buffer,dsc,dev,num):
 
     conn.put(result)
 
+# organizes and returns a list of data.
+def get_recent_proc_single(buffer, dsc, dev, num):
+
+    result = buffer[buffer["dsc"] == dsc]
+
+    untrimmed_data = result.loc[result['dev'] == dev]
+
+    # trim it to length (num).
+    trimmed_data = untrimmed_data.tail(num)
+
+    # return a list of the values
+    values = trimmed_data['value'].tolist()
+    times = trimmed_data['timestamp'].tolist()
+    result = [values,times]
+
+    return result
+
 # updates the dataframe buffer as a multiprocess.
 def update_proc(conn,buffer,data,cols):
     #listbuilder:
@@ -53,6 +70,23 @@ def update_proc(conn,buffer,data,cols):
 
     conn.put(result)
 
+
+# updates the dataframe buffer as a multiprocess.
+def update_proc_single(buffer, data, cols):
+    #listbuilder:
+    fragdata = []
+    
+    for fragment in data:
+        #
+        item = fragment.get()
+        fragdata.append(item)
+
+    # creates a new dataframe to add new data to
+    newdata = pd.DataFrame(fragdata, columns=cols)
+
+    result = join_dataframes(buffer,newdata)
+
+    return result
 
 # updates the dataframe buffer as a multiprocess.
 def update_em_proc(conn,buffer,data,cols):
@@ -88,7 +122,7 @@ def join_dataframes(buffer,newdata):
     
     return result
 
-class PLARS:
+class PLARS(object):
 
     def __init__(self):
 
@@ -350,18 +384,20 @@ class PLARS:
     def update(self,data):
 
         # sets/requests the thread lock to prevent other threads reading data.
-        self.lock.acquire()
+        # self.lock.acquire()
 
 
-        # breaks out the compilation of existing and newest dataframe as a process.
-        q = Queue()
+        # # breaks out the compilation of existing and newest dataframe as a process.
+        # q = Queue()
 
-        get_process = Process(target=update_proc, args=(q, self.buffer, data,['value','min','max','dsc','sym','dev','timestamp','latitude','longitude'],))
-        get_process.start()
+        # get_process = Process(target=update_proc, args=(q, self.buffer, data,['value','min','max','dsc','sym','dev','timestamp','latitude','longitude'],))
+        # get_process.start()
 
-        # return a list of the values from the process
-        result = q.get()
-        get_process.join()
+        # # return a list of the values from the process
+        # result = q.get()
+        # get_process.join()
+
+        result = update_proc_single(self.buffer, data,['value','min','max','dsc','sym','dev','timestamp','latitude','longitude'])
 
         # sets the new dataframe as the buffer
         self.buffer = result
@@ -375,25 +411,27 @@ class PLARS:
                 self.buffer = self.trimbuffer(configure.buffer_size[0])
 
         # release the thread lock for other threads
-        self.lock.release()
+        # self.lock.release()
 
 
     # return a list of n most recent data from specific sensor defined by keys
     def get_recent(self, dsc, dev, num = 5, time = False):
 
         # set the thread lock so other threads are unable to add sensor data
-        self.lock.acquire()
+        # self.lock.acquire()
 
-        q = Queue()
-        get_process = Process(target=get_recent_proc, args=(q,self.buffer,dsc,dev,num,))
-        get_process.start()
+        # q = Queue()
+        # get_process = Process(target=get_recent_proc, args=(q,self.buffer,dsc,dev,num,))
+        # get_process.start()
 
-        # return a list of the values
-        result = q.get()
-        get_process.join()
+        # # return a list of the values
+        # result = q.get()
+        # get_process.join()
 
-        # release the thread lock.
-        self.lock.release()
+        # # release the thread lock.
+        # self.lock.release()
+
+        result = get_recent_proc_single(self.buffer, dsc, dev, num)
 
         values = result[0]
 

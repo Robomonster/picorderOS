@@ -60,8 +60,43 @@ def graph_prep_process(conn,samples,datalist,auto,newrange,targetrange,sourceran
 
     conn.put(newlist)
 
+def graph_prep_process_single(samples,datalist,auto,newrange,targetrange,sourcerange,linepoint,jump,sourcelow):
+    newlist = []
+    # for each vertical bar in the graph size
+    for i in range(samples):
 
-class GraphArea:
+
+
+        # if the cursor has data to write
+        if i < len(datalist):
+
+            # gives me an index within the current length of the datalist
+            # goes from the most recent data backwards
+            # so the graph prints from left-right: oldest-newest data.
+            indexer = (len(datalist) - i) - 1
+
+            # if auto scaling is on
+            if auto == True:
+                # take the sensor value received and map it against the on screen limits
+                scaledata = abs(numpy.interp(datalist[indexer],newrange,targetrange))
+            else:
+                # use the sensors stated limits as the range.
+                scaledata = abs(numpy.interp(datalist[indexer],sourcerange,targetrange))
+
+            # append the current x position, with this new scaled data as the y positioning into the buffer
+            newlist.append((linepoint,scaledata))
+        else:
+            # If no data just write intensity as scaled zero
+            scaledata = abs(numpy.interp(sourcelow,sourcerange,targetrange))
+            newlist.append((linepoint,scaledata))
+
+        # increment the cursor
+        linepoint = linepoint + jump
+
+    return newlist
+
+
+class graph_area(object):
 # it is initialized with:
 # - ident: a graph identifier number so it knows which currently selected graphable sensor (0-2) this graph is
 # - graphcoords: list containing the top left x,y coordinates
@@ -202,12 +237,14 @@ class GraphArea:
 
 
 
-        q = Queue()
-        prep_process = Process(target=graph_prep_process, args=(q,self.samples,datalist,self.auto,self.newrange,self.targetrange,self.sourcerange,self.linepoint,self.jump,sourcelow,))
-        prep_process.start()
+        # q = Queue()
+        # prep_process = Process(target=graph_prep_process, args=(q,self.samples,datalist,self.auto,self.newrange,self.targetrange,self.sourcerange,self.linepoint,self.jump,sourcelow,))
+        # prep_process.start()
 
-        prep_process.join()
-        result = q.get()
+        # prep_process.join()
+        # result = q.get()
+
+        result = graph_prep_process_single(self.samples,datalist,self.auto,self.newrange,self.targetrange,self.sourcerange,self.linepoint,self.jump,sourcelow)
 
         return result
 

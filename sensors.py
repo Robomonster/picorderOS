@@ -3,10 +3,12 @@ import time
 from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
 import math
 import numpy
-from multiprocessing import Process,Queue,Pipe
+from multiprocessing import Process, Queue, Pipe
+
+
+
 # the following is a sensor module for use with the PicorderOS
 print("Loading Unified Sensor Module")
-
 
 if not configure.pc:
     import os
@@ -14,8 +16,6 @@ if not configure.pc:
 if configure.bme:
     import adafruit_bme680
     import busio as io
-
-
 
 if configure.sensehat:
     # instantiates and defines paramaters for the sensehat
@@ -33,7 +33,6 @@ if configure.sensehat:
 
     # Prepares an array of 64 pixel triplets for the Sensehat moire display
     moire=[[0 for x in range(3)] for x in range(64)]
-
 
 if configure.envirophat:
     from envirophat import light, weather, motion, analog
@@ -64,10 +63,8 @@ if configure.gps:
     from positioning import *
 
 
-
-
 # An object to store each sensor value and context.
-class Fragment:
+class Fragment(object):
 
     __slots__ = ('value','mini','maxi','dsc','sym','dev','timestamp','position')
 
@@ -98,7 +95,7 @@ class Fragment:
     def get_info(self):
         return [self.mini, self.maxi, self.dsc, self.sym, self.dev]
 
-class Sensor:
+class Sensor(object):
 
     # sensors should check the configuration flags to see which sensors are
     # selected and then if active should poll the sensor and append it to the
@@ -355,7 +352,7 @@ class Sensor:
             sensorlist.extend((self.cputemp, self.cpuperc, self.virtmem, self.bytsent, self.bytrece))
 
             if self.generators:
-                 sensorlist.extend((self.sinewav, self.tanwave, self.coswave, self.sinwav2)) 
+                sensorlist.extend((self.sinewav, self.tanwave, self.coswave, self.sinwav2)) 
             
             configure.max_sensors[0] = len(sensorlist)
             
@@ -429,7 +426,7 @@ class MLX90614():
 def sensor_process(conn):
     #init sensors
     sensors = Sensor()
-    timed = timer()
+    timed = Timer()
 
     while True:
         if timed.timelapsed() > configure.samplerate[0]:
@@ -442,7 +439,7 @@ def sensor_process(conn):
             conn.send([sensor_data, thermal_frame])
             timed.logtime()
 
-wifitimer = timer()
+wifitimer = Timer()
 
 def threaded_sensor():
 
@@ -475,8 +472,8 @@ def threaded_sensor():
 
 
                 data, thermal = item
-                plars.update(data)
-                plars.update_thermal(thermal)
+                plars_obj.update(data)
+                plars_obj.update_thermal(thermal)
 
                 #sets current position
                 configure.position = [data[0].get()[7],data[0].get()[8]]

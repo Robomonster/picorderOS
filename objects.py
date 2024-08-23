@@ -6,7 +6,7 @@ import time, configparser
 from os.path import exists
 
 
-class Preferences:
+class Preferences(object):
     def __init__(self):
         """Initializes the parameters for the program."""
         
@@ -440,7 +440,7 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
-class Timer:
+class Timer(object):
     """
     The following class is to handle interval timers.
     its used to handle concurrent program flow, but also for diagnostic.
@@ -480,13 +480,14 @@ class Timer:
 
 # Class to control the flow of the program using inputs. Uses flags and input events to tell each module
 # how to behave.
-class Events:
+class Events(object):
 
     # at creation takes in a list of events to map the button layout to modules behaviours, and the base module
 
     def __init__(self, but_map, base):
         self.but_map = but_map
         self.base = base
+        self.configure = configure
         # button map for rearranging control scheme (for making wiring input easier)
         # first number is where input currently is connected (pin number)
         # second number is where input should go.
@@ -498,16 +499,16 @@ class Events:
         payload = 0
 
         # if an event has occured, this is set by input.py
-        if configure.eventready[0]:
+        if self.configure.eventready[0]:
 
             # clear the event flag.
-            configure.eventready[0] = False
+            self.configure.eventready[0] = False
             
             # grab the event list
-            keys = configure.eventlist[0]
+            keys = self.configure.eventlist[0]
 
             # If button map is on
-            if configure.button_map:
+            if self.configure.button_map:
 
                 #make a dummy list
                 resultantmap = [False] * 16
@@ -535,9 +536,9 @@ class Events:
                             # if the action is to go back
                             if status == "last":
                                 # pull the last status for us to switch to
-                                status = configure.last_status.pop()
+                                status = self.configure.last_status.pop()
                             else:
-                                configure.last_status.append(self.base)
+                                self.configure.last_status.append(self.base)
                                 
                         payload = 0
                     elif isinstance(self.but_map[index], int):

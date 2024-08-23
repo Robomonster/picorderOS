@@ -12,7 +12,7 @@ import socket
 
 from pathlib import Path
 from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
-from objects import configure, Timer, Events, translate
+from objects import Preferences, Timer, Events, translate
 from input import Inputs, threaded_input, input_tester
 from amg8833_pygame import *
 from operator import itemgetter
@@ -115,7 +115,7 @@ def butswitch():
                 configure.status[0] = "quit"
 
 # the following class defines simple text labels
-class Label:
+class Label(object):
 
     def __init__(self,content = "hello", fontSize = 30, x = 0, y = 0, color = white, font = titleFont):
         self.color = color
@@ -172,7 +172,7 @@ class Label:
 # a class to create a simple text list.
 # initialize with x/y coordinates
 # on update provide list of items to display, and draw object to draw to.
-class Label_List:
+class Label_List(object):
 
     def __init__(self, x = 0, y = 0, colour = white, font = titleFont, size = 15):
 
@@ -305,7 +305,7 @@ class SelectableLabel(Label):
         surface.blit(state, (pos, self.y))
 
 # the following class is used to display images
-class Image:
+class Image(object):
     def __init__(self):
         self.x = 258
         self.y = 66
@@ -321,7 +321,7 @@ class Image:
         surface.blit(self.Img, (self.x,self.y))
 
 # The following class is used to prepare sensordata for display on the graph.
-class graphlist:
+class graphlist(object):
 
     # the following is constructor code to give each object a list suitable for storing all our graph data, in this case it is 145 spaces.
     def __init__(self):
@@ -468,7 +468,7 @@ def about(surface):
 
     pygame.display.flip()
 
-class Settings_Panel:
+class Settings_Panel(object):
 
     def __init__(self,surface):
 
@@ -548,7 +548,7 @@ class Settings_Panel:
 
         return result
 
-class Master_Systems_Display:
+class Master_Systems_Display(object):
 
     def __init__(self, surface):
 
@@ -592,7 +592,7 @@ class Master_Systems_Display:
         host_str = "Name:  " + socket.gethostname()
         sense_ready = "Sensors Avl:  " + str(len(configure.sensor_info))
         cpu_name = "CPU:  " + self.model
-        PLARS_size, PLARS_em_size = plars.get_plars_size()
+        PLARS_size, PLARS_em_size = plars_obj.get_plars_size()
         db_size = "PLARS Size:  " + str(PLARS_size)
         em_size = "PLARS EM Size:  " + str(PLARS_em_size)
 
@@ -607,7 +607,7 @@ class Master_Systems_Display:
 
 # The graph screen object is a self contained screen that is fed the surface
 # and the sensor at the current moment and draws a frame when called.
-class Graph_Screen:
+class Graph_Screen(object):
 
     # Draws three graphs in a grid and three corresponding labels.
 
@@ -615,7 +615,7 @@ class Graph_Screen:
 
 
         # for long presses
-        self.input_timer = timer()
+        self.input_timer = Timer()
         self.presstime = 5
         self.longpressed = [False, False, False]
 
@@ -624,7 +624,7 @@ class Graph_Screen:
         self.selection = 0
 
         # An fps controller
-        self.drawinterval = timer()
+        self.drawinterval = Timer()
 
         # Sample rate controller
         self.senseinterval = 0
@@ -708,7 +708,7 @@ class Graph_Screen:
             dsc,dev,sym,maxi,mini = configure.sensor_info[this_index]
 
             # grabs sensor data
-            datas[i] = plars.get_recent(dsc,dev,num = SAMPLE_SIZE)[0]
+            datas[i] = plars_obj.get_recent(dsc,dev,num = SAMPLE_SIZE)[0]
 
 
             # if data capture has failed, replace with 47 for diagnostic
@@ -839,7 +839,7 @@ class Graph_Screen:
         self.visibility[item] = option
 
 # Video screen written by scifi.radio from the mycorder discord
-class Video_Playback:
+class Video_Playback(object):
     def __init__(self,surface):
         self.status = "video"
         self.surface = surface
@@ -905,7 +905,7 @@ class Video_Playback:
 
         return self.status
 
-class Slider_Screen:
+class Slider_Screen(object):
     def __init__(self, surface):
         # This function draws the main 3-slider interface, modelled after McCoy's tricorder in "Plato's Stepchildren". It displays temperature, humidity and pressure.
         self.surface = surface
@@ -948,7 +948,7 @@ class Slider_Screen:
 
             dsc,dev,sym,mini,maxi = configure.sensor_info[this_index]
 
-            item = plars.get_recent(dsc,dev,num = 1)[0]
+            item = plars_obj.get_recent(dsc,dev,num = 1)[0]
 
             if len(item) > 0:
                 senseslice.append([item[0], sym, mini, maxi])
@@ -997,7 +997,7 @@ class Slider_Screen:
         # draws UI to frame buffer
         return status
 
-class Wifi_Screen:
+class Wifi_Screen(object):
 
     def __init__(self, surface):
         self.surface = surface
@@ -1030,7 +1030,7 @@ class Wifi_Screen:
 
 
         #grab EM list
-        unsorted_em_list = plars.get_recent_em_list()
+        unsorted_em_list = plars_obj.get_recent_em_list()
 
 
         if len(unsorted_em_list) > 0:
@@ -1163,7 +1163,7 @@ class Wifi_Screen:
         list_for_labels = []
 
         # grab EM list
-        em_list = plars.get_recent_em_list()
+        em_list = plars_obj.get_recent_em_list()
 
         if len(em_list) > 0:
             #sort it so strongest is first
@@ -1196,7 +1196,7 @@ class Wifi_Screen:
 # - shows the thermal output
 # - displays the high low and xbar of the field
 # - switches the display to full screen and back.
-class Thermal_Screen:
+class Thermal_Screen(object):
 
 
     def __init__(self,surface):
@@ -1204,7 +1204,7 @@ class Thermal_Screen:
         self.events = Events([1,"video","settings"],"thermal")
 
         # for long presses
-        self.input_timer = timer()
+        self.input_timer = Timer()
         self.presstime = 5
         self.longpressed = [False, False, False]
 
@@ -1212,7 +1212,7 @@ class Thermal_Screen:
         self.selection = 0
 
         # An fps controller
-        self.drawinterval = timer()
+        self.drawinterval = Timer()
 
         # Sample rate controller
 
@@ -1292,7 +1292,7 @@ class Thermal_Screen:
         self.visibility[item] = option
 
 # A basic screen object. Is given parameters and displays them on a number of preset panels
-class Screen:
+class Screen(object):
 
     def __init__(self):
         screenSize = resolution

@@ -2,6 +2,7 @@ import serial,time
 from pynmeagps import NMEAReader
 from multiprocessing import Process,Queue,Pipe
 
+
 # Serial UART address
 port = '/dev/ttyUSB0'
 baud = 9600

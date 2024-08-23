@@ -1,4 +1,4 @@
-from objects import configure, Timer, Events, translate
+from objects import Preferences, Timer, Events, translate
 import simpleaudio as sa
 print("Loading Audio Thread")
 
@@ -17,7 +17,7 @@ sounds = [scansound, clicksound]
 
 
 def threaded_audio():
-    timed = timer()
+    timed = Timer()
     start = True
     was_open = False
     warble = scansound.play()

@@ -18,7 +18,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 # load the module that draws graphs
-from pilgraph import GraphArea, graph_prep_process
+from pilgraph import *
 
 
 # Load default font.
@@ -49,7 +49,7 @@ fore_col = 0
 back_col = 1
 
 # Controls text objects drawn to the LCD
-class LabelObj:
+class LabelObj(object):
     def __init__(self,string,font,draw):
         self.font = font
         self.draw = draw
@@ -64,12 +64,12 @@ class LabelObj:
 
 
 # Controls the LCARS frame, measures the label and makes sure the top frame bar has the right spacing.
-class MultiFrame:
+class MultiFrame(object):
 
     def __init__(self,draw, input):
         self.input = input
         self.auto = configure.auto
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
         self.draw = draw
         self.definetitle()
@@ -201,7 +201,7 @@ class MultiFrame:
 # Screen instantiates a draw object and passes it the image background.
 # Screen monitors button presses and passes flags for interface updates to the draw object.
 
-class NokiaScreen:
+class NokiaScreen(object):
 
     def __init__(self):
 

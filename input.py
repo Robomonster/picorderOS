@@ -40,7 +40,7 @@ release_threshold = 2
 pins = [configure.PIN_IN0,configure.PIN_IN1,configure.PIN_IN2]
 
 # tr109 by default uses cap1208. This will require modifying for other inputs
-if configure.tr109:
+if configure.tr109 and False:
 
     import RPi.GPIO as GPIO
 
@@ -119,7 +119,7 @@ if configure.input_pcf8575:
     button_table = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,0,3,2,4]
 
 # the input class receives and relays control events for user interaction
-class Inputs:
+class Inputs(object):
 
     def __init__(self):
 

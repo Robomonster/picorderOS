@@ -12,7 +12,7 @@ import numpy as np
 import pygame
 from scipy.interpolate import griddata
 from colour import Color
-from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from plars import *
 
 # some utility functions
 def constrain(val, min_val, max_val):
@@ -71,7 +71,7 @@ rotate = False
 fliplr = False
 flipud = True
 
-from objects import configure, Timer, Events, translate
+from objects import Preferences, Timer, Events, translate
 
 import sensors
 
@@ -93,7 +93,7 @@ def makegrid(random = True):
     return dummyvalue
 
 # a single pixel of temperature information
-class ThermalPixel:
+class ThermalPixel(object):
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -133,7 +133,7 @@ class ThermalPixel:
 
         pygame.draw.rect(surface, (red,green,blue), (self.x, self.y, self.w, self.h))
 
-class ThermalColumns:
+class ThermalColumns(object):
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -151,7 +151,7 @@ class ThermalColumns:
         for i in range(8):
             self.pixels[i].update(data[i],high, low, surface)
 
-class ThermalRows:
+class ThermalRows(object):
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -169,7 +169,7 @@ class ThermalRows:
         for i in range(8):
             self.pixels[i].update(data[i],high, low, surface)
 
-class ThermalGrid:
+class ThermalGrid(object):
 
     def __init__(self,x,y,w,h):
         self.x = x
@@ -259,7 +259,7 @@ class ThermalGrid:
     def update(self):
 
         if configure.amg8833:
-            self.data = plars.get_thermal_frame()
+            self.data = plars_obj.get_thermal_frame()
 
             if len(self.data) < 1:
                 self.data = self.dummy

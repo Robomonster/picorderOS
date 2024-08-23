@@ -10,7 +10,7 @@ import time
 from operator import itemgetter
 
 from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
-from objects import configure, Timer, Events, translate
+from objects import Preferences, Timer, Events, translate
 
 
 error = ""
@@ -68,11 +68,11 @@ map = """             @   .-
 
 
 
-class Start_Frame:
+class Start_Frame(object):
     def __init__(self):
         self.bootto = "multi"
         self.started = False
-        self.timesup = timer()
+        self.timesup = Timer()
         self.logoxy = [15,2]
         self.titlexy = [1,25]
 
@@ -101,7 +101,7 @@ class Start_Frame:
 
         return "startup"
 # A pointless indicator widget to mimic the Alpha Beta Gamma Delta annunciators from the prop.
-class abgd:
+class abgd(object):
 
     def __init__(self,y,x):
         self.x = x
@@ -109,7 +109,7 @@ class abgd:
         self.titles =  ["ALPHA", "BETA", "GAMMA", "DELTA"]
         self.symbols = ["████", "    ", "    ", "    "]
         self.frame = 0
-        self.timeit = timer()
+        self.timeit = Timer()
         self.timeit.logtime()
         self.interval = .25
 
@@ -211,7 +211,7 @@ class PLARS_Graph():
 
 
 
-class graph:
+class graph(object):
 
     def __init__(self,y,x,w,h,setting):
         self.cursor = 0
@@ -245,7 +245,7 @@ class graph:
     def get_value(self):
         self.get_identity()
         # grabs sensor data
-        value = plars.get_recent(self.dsc,self.dev,num=1)[0]
+        value = plars_obj.get_recent(self.dsc,self.dev,num=1)[0]
         
         if len(value) > 0:
             self.title = self.dsc
@@ -311,7 +311,7 @@ class graph:
         for i in range(0, n - self.w):
             self.data_buffer.pop()
 
-class Multi_Frame:
+class Multi_Frame(object):
 
     def __init__(self):
 
@@ -339,7 +339,7 @@ class Multi_Frame:
 
         return status
     
-class Master_Systems_Display_Frame:
+class Master_Systems_Display_Frame(object):
     def __init__(self):
 
         self.events = Events(["multi",0,0],"msd")
@@ -374,7 +374,7 @@ class Master_Systems_Display_Frame:
         host_str = "Name:  " + socket.gethostname()
         sense_ready = "Sensors Avl:  " + str(len(configure.sensor_info))
         cpu_name = "CPU:  " + self.model
-        PLARS_size, PLARS_em_size = plars.get_plars_size()
+        PLARS_size, PLARS_em_size = plars_obj.get_plars_size()
         db_size = "PLARS Size:  " + str(PLARS_size)
         em_size = "PLARS EM Size:  " + str(PLARS_em_size)
 
@@ -406,10 +406,10 @@ class Master_Systems_Display_Frame:
 #        - List sensors on i2c?
 
 
-class Diagnostic_Frame:
+class Diagnostic_Frame(object):
     def __init__(self):
 
-        self.timer = timer()
+        self.timer = Timer()
         self.interval = 2
 
         self.events = Events([0,0,0],"diagnostic")
@@ -446,7 +446,7 @@ class Diagnostic_Frame:
 
         return status
 
-class Position_Frame:
+class Position_Frame(object):
     def __init__(self):
         self.last_position = [47,47]
         self.mapx = 1
@@ -456,7 +456,7 @@ class Position_Frame:
     def retrieve_data(self):
 
         if configure.gps:
-            value = plars.get_recent("GPS Speed","gps",num=1)[0]
+            value = plars_obj.get_recent("GPS Speed","gps",num=1)[0]
         else:
             return 47
 
@@ -490,7 +490,7 @@ class Position_Frame:
         
         return status
 
-class EM_Frame:
+class EM_Frame(object):
     def __init__(self):
 
         self.graphcycle = 0
@@ -538,7 +538,7 @@ class EM_Frame:
             list_for_labels = []
 
             # grab EM list
-            em_list = plars.get_recent_em_list()
+            em_list = plars_obj.get_recent_em_list()
 
             if len(em_list) > 0:
                 #sort it so strongest is first
@@ -564,7 +564,7 @@ class EM_Frame:
 
     def em_statistics(self):
         
-        idents, cur_no, max_no = plars.get_em_stats()
+        idents, cur_no, max_no = plars_obj.get_em_stats()
 
         stdscr.addstr(2,2,"Modulated EM Stats")
 
@@ -587,7 +587,7 @@ class EM_Frame:
             focus_freq = 0
 
             #grab EM list
-            unsorted_em_list = plars.get_recent_em_list()
+            unsorted_em_list = plars_obj.get_recent_em_list()
 
 
 
@@ -673,10 +673,10 @@ def cli_reset(self):
     stdscr.keypad(False)
     curses.echo()
 
-class CLI_Display:
+class CLI_Display(object):
 
     def __init__(self):
-        self.refresh = timer()
+        self.refresh = Timer()
         self.refreshrate = .2 
 
         self.startup = Start_Frame()

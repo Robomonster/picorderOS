@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # This module controls the st7735 type screens
 print("Loading 160x128 LCARS Interface")
-from objects import configure, Timer, Events, translate
+from objects import Preferences, Timer, Events, translate
 import math
 import time
 import socket
@@ -21,9 +21,9 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 # load the module that draws graphs
-from pilgraph import GraphArea, graph_prep_process
+from pilgraph import *
 from amg8833_pil import *
-from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes, PLARS, plars_process, plars_obj
+from plars import *
 
 
 
@@ -54,7 +54,7 @@ back_col = 1
 
 
 
-class DrawGrid:
+class DrawGrid(object):
     def __init__(self,x,y,w,h,colour,segx = 4, segy = 4):
         self.x = x
         self.y = y
@@ -125,7 +125,7 @@ class DrawGrid:
             draw.line(self.vcoordlist[i],self.colour,1)
 
 
-class Dialogue:
+class Dialogue(object):
 
     def __init__(self):
 
@@ -133,7 +133,7 @@ class Dialogue:
 
 
         self.auto = configure.auto[0]
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
 
         self.titlex = 25
@@ -179,7 +179,7 @@ class Dialogue:
         pass
 
 # Controls text objects drawn to the LCD
-class LabelObj:
+class LabelObj(object):
     def __init__(self,string, font, colour = lcars_blue):
         self.font = font
         #self.draw = draw
@@ -217,7 +217,7 @@ class LabelObj:
 # a class to create a simple text list.
 # initialize with x/y coordinates
 # on update provide list of items to display, and draw object to draw to.
-class Label_List:
+class Label_List(object):
 
     def __init__(self, x, y, colour = lcars_orpeach, ofont = font):
 
@@ -349,7 +349,7 @@ class SelectableLabel(LabelObj):
         surface.blit(state, (pos, self.y))
 
 # serves as a screen to show the current status of the picorder
-class MasterSystemsDisplay:
+class MasterSystemsDisplay(object):
 
     def __init__(self):
         self.title = None
@@ -396,7 +396,7 @@ class MasterSystemsDisplay:
         host_str = "Name:  " + socket.gethostname()
         sense_ready = "Sensors Avl:  " + str(len(configure.sensor_info))
         model_name = "CPU:  " + self.model
-        PLARS_size, PLARS_em_size = plars.get_plars_size()
+        PLARS_size, PLARS_em_size = plars_obj.get_plars_size()
         db_size = "PLARS Size:  " + str(PLARS_size)
         em_size = "PLARS EM Size:  " + str(PLARS_em_size)
 
@@ -415,7 +415,7 @@ class MasterSystemsDisplay:
 
         return status
 
-class PowerMenu:
+class PowerMenu(object):
     
     def __init__(self):
 
@@ -435,7 +435,7 @@ class PowerMenu:
         self.status_raised = False
 
         self.auto = configure.auto[0]
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
         #self.draw = draw
         self.titlex = 2
@@ -533,7 +533,7 @@ class PowerMenu:
 
         return status
 
-class SettingsFrame:
+class SettingsFrame(object):
     def __init__(self):
 
         # pages are a description string and an item to change. 
@@ -558,7 +558,7 @@ class SettingsFrame:
         self.status_raised = False
 
         self.auto = configure.auto[0]
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
         #self.draw = draw
         self.titlex = 2
@@ -657,7 +657,7 @@ class SettingsFrame:
         return status
 
 # a simple frame that tells the user that the picorder is loading another screen.
-class LoadingFrame:
+class LoadingFrame(object):
 
     captions = ["working", "accessing", "initializing", "computing", "calculating"]
 
@@ -675,7 +675,7 @@ class LoadingFrame:
 
         return status
 
-class StartUp:
+class StartUp(object):
     def __init__(self):
         self.titlex = 0
         self.titley = 77
@@ -693,7 +693,7 @@ class StartUp:
         self.item = LabelObj(configure.boot_message,font,colour = lcars_peach)
 
         # creates and interval timer for screen refresh.
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
 
     def push(self, draw):
@@ -714,14 +714,14 @@ class StartUp:
 
         return status
 
-class PowerDown:
+class PowerDown(object):
     def __init__(self):
 
         self.selection = 0
 
 
         self.auto = configure.auto[0]
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
         #self.draw = draw
         self.titlex = 25
@@ -763,7 +763,7 @@ class PowerDown:
 
         return status
 
-class EMFrame:
+class EMFrame(object):
     def __init__(self):
 
         self.graphcycle = 0
@@ -789,7 +789,7 @@ class EMFrame:
         
 
         # create our graph_screen
-        self.Signal_Graph = GraphArea(0,(self.graphx+1,self.graphy+1),(self.gspanx-3,self.gspany-3),self.graphcycle, lcars_pink, width = 1, type = 1, samples = 45)
+        self.Signal_Graph = graph_area(0,(self.graphx+1,self.graphy+1),(self.gspanx-3,self.gspany-3),self.graphcycle, lcars_pink, width = 1, type = 1, samples = 45)
         self.Signal_Grid = DrawGrid(self.graphx,self.graphy,self.gspanx,self.gspany,lcars_grid)
 
         self.title = LabelObj("Modulated EM Scan",titlefont, colour = lcars_orange)
@@ -827,7 +827,7 @@ class EMFrame:
         self.events = Events([1,"multi",0,"settings","poweroff",2,0,0],"modem")
 
     def draw_indicators(self,draw):
-            idents, cur_no, max_no = plars.get_em_stats()
+            idents, cur_no, max_no = plars_obj.get_em_stats()
             self.indicator1.string = str(cur_no)
             self.indicator1.r_align(14,67,draw)
 
@@ -841,7 +841,7 @@ class EMFrame:
     def domin_transciever(self,draw):
 
             # grab EM data from plars
-            info = plars.get_top_em_info()[0]
+            info = plars_obj.get_top_em_info()[0]
             rect_coords = (self.graphx,self.graphy,self.graphx + self.gspanx,self.graphy + self.gspany)
             draw.rounded_rectangle(rect_coords, outline = lcars_grid, width = 1, radius = 2)
 
@@ -870,7 +870,7 @@ class EMFrame:
             list_for_labels = []
 
             # grab EM list
-            em_list = plars.get_recent_em_list()
+            em_list = plars_obj.get_recent_em_list()
 
             if len(em_list) > 0:
                 #sort it so strongest is first
@@ -890,7 +890,7 @@ class EMFrame:
 
     def em_statistics(self,draw):
         
-        idents, cur_no, max_no = plars.get_em_stats()
+        idents, cur_no, max_no = plars_obj.get_em_stats()
 
         self.draw_title("Modulated EM Stats", draw)
 
@@ -911,7 +911,7 @@ class EMFrame:
         list_for_labels = []
 
         # grab EM list
-        bt_list = plars.get_recent_bt_list()
+        bt_list = plars_obj.get_recent_bt_list()
 
 
         # prepare a list of the data received for display
@@ -950,7 +950,7 @@ class EMFrame:
             self.draw_title("EM Channel Analysis", draw)
 
             #grab EM list
-            unsorted_em_list = plars.get_recent_em_list()
+            unsorted_em_list = plars_obj.get_recent_em_list()
             noossids = len(unsorted_em_list)
 
 
@@ -1085,7 +1085,7 @@ class EMFrame:
             else:
                 self.selection = 4
 
-        if len(plars.get_top_em_info()) < 1:
+        if len(plars_obj.get_top_em_info()) < 1:
             self.selection = -1
 
         # if no wifi available.
@@ -1120,7 +1120,7 @@ class EMFrame:
 
 
 # Controls the LCARS frame, measures the label and makes sure the top frame bar has the right spacing.
-class MultiFrame:
+class MultiFrame(object):
 
     def __init__(self):
 
@@ -1148,7 +1148,7 @@ class MultiFrame:
         self.auto = configure.auto[0]
 
         # creates and interval timer for screen refresh.
-        self.interval = timer()
+        self.interval = Timer()
         self.interval.logtime()
 
         # Sets the coordinates of onscreen labels.
@@ -1164,11 +1164,11 @@ class MultiFrame:
         self.divider = 47
 
         # create our graph_screen
-        self.A_Graph = GraphArea(0,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[0], width = 1)
+        self.A_Graph = graph_area(0,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[0], width = 1)
 
-        self.B_Graph = GraphArea(1,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[1], width = 1)
+        self.B_Graph = graph_area(1,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[1], width = 1)
 
-        self.C_Graph = GraphArea(2,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[2], width = 1)
+        self.C_Graph = graph_area(2,(self.graphx,self.graphy),(self.gspanx,self.gspany),self.graphcycle, theme1[2], width = 1)
 
         self.Graphs = [self.A_Graph, self.B_Graph, self.C_Graph]
 
@@ -1361,7 +1361,8 @@ class MultiFrame:
 
         return status
 
-class ThermalFrame:
+
+class ThermalFrame(object):
     def __init__(self):
         # Sets the topleft origin of the graph
         self.graphx = 23
@@ -1484,7 +1485,8 @@ class ThermalFrame:
 
         return status
 
-class ColourScreen:
+
+class ColourScreen(object):
 
     def __init__(self):
 
