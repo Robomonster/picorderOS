@@ -4,7 +4,6 @@ from plars import get_recent_proc, update_proc, update_em_proc, join_dataframes,
 import math
 import numpy
 from multiprocessing import Process, Queue, Pipe
-from multiprocessing.connection import PipeConnection
 import threading
 
 
@@ -425,12 +424,12 @@ class MLX90614():
         return self.data_to_temp(data)
 
 # function to use the sensor class as a process.
-def sensor_process(conn: PipeConnection):
+def sensor_process(conn):
     #init sensors
     sensors = Sensor()
     timed = Timer()
 
-    # def listener(in_conn: PipeConnection):
+    # def listener(in_conn):
     #     while True:
     #         msg = in_conn.recv()
     #         if msg == 'STOP':
