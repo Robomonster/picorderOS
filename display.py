@@ -67,43 +67,43 @@ def DisplayFunction(q):
     if configure.display == 2:
         surface = device.draw()
 
-    while go:
+    try:
+        while go:
+            payload = q.get()
 
-        payload = q.get()
+            # add an event to handle shutdown.
+            if payload == "quit":
+                device.cleanup()
+                go = False
 
-        # add an event to handle shutdown.
-        if payload == "quit":
-            device.cleanup()
-            go = False
+            # the following is only for screens that use Luma.LCD
+            if configure.display == 1:
+                device.display(payload)
 
-        # the following is only for screens that use Luma.LCD
-        if configure.display == 1:
-            device.display(payload)
-
-        # the following is only for TFT24T screens
-        elif configure.display == 2:
-             # Resize the image and rotate it so it's 240x320 pixels.
-            frame = payload.rotate(90,0,1).resize((240, 320))
-            # Draw the image on the display hardware.
-            surface.pasteimage(frame,(0,0))
-            device.display()
+            # the following is only for TFT24T screens
+            elif configure.display == 2:
+                # Resize the image and rotate it so it's 240x320 pixels.
+                frame = payload.rotate(90,0,1).resize((240, 320))
+                # Draw the image on the display hardware.
+                surface.pasteimage(frame,(0,0))
+                device.display()
+    except KeyboardInterrupt:
+        device.cleanup()
+        return
 
 # a class to control the connected display. It serves as a transmission between
 # the main drawing program and the possible connected screen. A range of screens
 # and libraries can be used in this way with small modifications to the base
 # class.
 class GenericDisplay:
-
     def __init__(self):
         self.q = Queue()
         self.display_process = Process(target=DisplayFunction, args=(self.q,))
         self.display_process.start()
 
-
     # Display takes a PILlow based drawobject and pushes it to screen.
     def display(self,frame):
         self.q.put(frame)
-
 
     def cleanup(self):
         self.q.put("quit")

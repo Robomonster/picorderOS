@@ -134,6 +134,7 @@ def Main():
     # The following calls are for cleanup and just turn "off" any elements.
     if configure.leds[0]:
         leds.resetleds()
+        print('trying to stop LED thread')
         led_thread.join()
         print('LED thread stopped')
 
@@ -144,13 +145,17 @@ def Main():
         cli_display.cli_reset()
     
     if configure.audio[0]:
+        print('trying to stop Audio thread')
         audio_thread.join()
         print('Audio thread stopped')
 
+    print('trying to stop Sensor thread')
     sensor_thread.join()
     print('Sensor thread stopped')
+    print('trying to stop Input thread')
     input_thread.join()
     print('Input thread stopped')
+    print('trying to stop PLARS thread')
     plars_obj.shutdown()
     print('PLARS thread stopped')
     sys.exit()

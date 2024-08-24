@@ -5,6 +5,7 @@ import math
 import numpy
 from multiprocessing import Process, Queue, Pipe
 from multiprocessing.connection import PipeConnection
+import threading
 
 
 
@@ -429,8 +430,20 @@ def sensor_process(conn: PipeConnection):
     sensors = Sensor()
     timed = Timer()
 
-    while True:
-        if timed.timelapsed() > configure.samplerate[0]:
+    # def listener(in_conn: PipeConnection):
+    #     while True:
+    #         msg = in_conn.recv()
+    #         if msg == 'STOP':
+    #             exit()
+
+    # listener_thread = threading.Thread(target=listener, args=(conn, ))
+    # listener_thread.start()
+
+    try:
+        while True:
+            if timed.timelapsed() < configure.samplerate[0]:
+                continue
+
             sensor_data = sensors.get()
             if configure.amg8833:
                 thermal_frame = sensors.get_thermal_frame()
@@ -439,6 +452,9 @@ def sensor_process(conn: PipeConnection):
             #constantly grab sensors
             conn.send([sensor_data, thermal_frame])
             timed.logtime()
+    except KeyboardInterrupt:
+        conn.send(None)
+        return
 
 wifitimer = Timer()
 
@@ -462,17 +478,15 @@ def threaded_sensor():
     sense_process = Process(target=sensor_process, args=(child_conn,))
     sense_process.start()
 
-    while not configure.status[0] == "quit":
+    while configure.status[0] != "quit":
         item = parent_conn.recv()
         
         if item is not None:
-
-
             data, thermal = item
             plars_obj.update(data)
             plars_obj.update_thermal(thermal)
 
-            #sets current position
+            # sets current position
             configure.position = [data[0].get()[7],data[0].get()[8]]
         else:
             break
