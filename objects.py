@@ -244,7 +244,7 @@ class Preferences:
         self.dr = [self.str2bool(config['GLOBALS']['doordetection'])]
 
         # holds the physical status of the devices
-        self.dr_open = [False]
+        self.dr_open = [True]
         self.dr_closed = [False]
         self.dr_opening = [False]
         self.dr_closing = [False]

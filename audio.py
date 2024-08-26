@@ -1,4 +1,4 @@
-from objects import Preferences, Timer, Events, translate
+from objects import configure, Timer, Events, translate
 import simpleaudio as sa
 print("Loading Audio Thread")
 
@@ -61,3 +61,7 @@ def threaded_audio():
                 configure.alarm_ready[0] = False
         else:
             warble.stop()
+
+
+if __name__ == '__main__':
+    threaded_audio()

@@ -31,6 +31,7 @@ if configure.display == 1:
     if not configure.pc:
         serial = spi(port = SPI_PORT, device = SPI_DEVICE, gpio_DC = DC, gpio_RST = RST)
         device = st7735(serial, width = 160, height = 128, mode = "RGB")
+        device.backlight(False)
     else:
         # if the user has selected the emulated display we
         # load the display as a pygame window.
